@@ -1,7 +1,1 @@
-Tested with Python 3.5 or above
-
-Host machine must have environment variable called 'DATABASE_URL' with a full
-path to the database. To do this, enter the following command in your terminal
-with appropriate 'username' and 'password':
-
-  export DATABASE_URL=postgresql://{username}:{password}@localhost:5432/recipes
+Tested on Ubuntu 16.04 with Python 3.5
