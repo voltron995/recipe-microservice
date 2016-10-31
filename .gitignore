@@ -1,2 +1,5 @@
 .env/
 __pycache__/
+
+# Secret credentials
+settings/secrets.py
