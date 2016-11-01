@@ -3,3 +3,4 @@ __pycache__/
 
 # Secret credentials
 secrets.py
+uwsgi.ini
