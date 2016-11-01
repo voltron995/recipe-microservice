@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-from application.app import manager, app, db
-from application import models, urls
+from application.main import *
 
 
 if __name__ == "__main__":

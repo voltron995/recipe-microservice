@@ -32,7 +32,7 @@ def json_response(arg):
     Returns valid JSON response.
     """
     if arg is None:
-        arg = {'error':404}
+        arg = {"error":"404"}
     elif isinstance(arg, Model):
         arg = model_serializer(arg)
 
