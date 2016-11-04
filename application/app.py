@@ -3,11 +3,12 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 from flask_alchemydumps import AlchemyDumps, AlchemyDumpsCommand
-from .settings.base import Configuration
+from .settings import base
 
 
 app = Flask(__name__)
-app.config.from_object(Configuration)
+app.config.from_object(base)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

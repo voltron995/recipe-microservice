@@ -17,8 +17,8 @@ class Recipe(db.Model):
     description = db.Column(db.Text())
     img_path =  db.Column(db.String(200))
     slug = db.Column(db.String(50), unique=True)
-    created_timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
-    updated_timestamp = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    created_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    updated_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
     categories = db.relationship('RecipeCategory',
                                  secondary=recipe_recipe_category,
@@ -35,8 +35,8 @@ class RecipeCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     slug = db.Column(db.String(50), unique=True)
-    created_timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
-    updated_timestamp = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    created_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    updated_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
