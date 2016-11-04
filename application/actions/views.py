@@ -3,8 +3,8 @@ from flask.views import MethodView
 from ..app import app
 from ..models import Recipe, RecipeCategory
 from ..facilities import json_response
-
-
+from ..app import logger
+import logging
 class ActionList(MethodView):
     def get(self):
         rule_dict = OrderedDict()
@@ -25,7 +25,7 @@ class ActionList(MethodView):
 
             if 'POST' in rule_dict[endpoint]['method']:
                 rule_dict[endpoint].update(OrderedDict({'post_data':[]}))
-
+        logger.info('ffdd')
         return json_response(rule_dict)
 
 class ActionName(MethodView):

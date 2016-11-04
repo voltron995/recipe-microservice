@@ -5,9 +5,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_alchemydumps import AlchemyDumps, AlchemyDumpsCommand
 from .settings.base import Configuration
 
+from config.logconf import LOGGING
+import logging.config
 
 app = Flask(__name__)
-app.config.from_object(Configuration)
+app.config.from_object(base)
+DEVELOPMENT=True
+DEBUG=False
+
+logger = logging.getLogger('app')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
