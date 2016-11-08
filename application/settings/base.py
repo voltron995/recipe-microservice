@@ -3,13 +3,12 @@ from .locals import DB_SETTINGS
 import logging
 import logging.config
 APPLICATION_DIR = os.path.dirname(os.path.realpath(__file__))
-print (APPLICATION_DIR)
 DEBUG = True
 
 SQLALCHEMY_DATABASE_URI = "{rdbms}://{user}:{password}@{host}:{port}/{db_name}".format(**DB_SETTINGS)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 basedir=os.path.abspath(os.path.dirname(__file__)+'/../../')
-print (basedir)
+
 LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,

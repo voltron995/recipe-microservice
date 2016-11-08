@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from flask.views import MethodView
 from ..app import app
-from ..models import Recipe, RecipeCategory
+from ..recipes.models import Recipe, RecipeCategory
 from ..facilities import json_response
 from ..app import logger
 import logging

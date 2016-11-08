@@ -17,6 +17,7 @@ def model_serializer(model_obj):
 
     for field in fields:
         val = getattr(model_obj, field)
+        
         if isinstance(val, datetime):
             val = val.isoformat()
         elif isinstance(val, Query):

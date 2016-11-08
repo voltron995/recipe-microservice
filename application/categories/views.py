@@ -4,7 +4,7 @@ from flask import request
 from flask.views import MethodView
 from sqlalchemy.exc import DataError
 from ..app import app, db
-from ..models import Recipe, RecipeCategory
+from ..recipes.models import Recipe, RecipeCategory
 from ..facilities import json_response
 
 
