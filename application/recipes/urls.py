@@ -4,6 +4,7 @@ from .views import *
 
 urls = [
     ('/<int:rcp_id>/', RecipeById, 'recipe_entity'),
+    ('/', RecipeView, 'recipe_api')
 ]
 
 recipes = Blueprint('recipes', __name__)
