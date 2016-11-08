@@ -12,7 +12,9 @@ class Recipe(db.Model,DateMixin):
     categories = db.relationship('RecipeCategory',
                                  secondary=create_table('recipe', 'recipe_category'),
                                  backref=db.backref('recipes', lazy='dynamic'))
-    recipe_ingredients = db.relationship('RecipeIngredient', backref='recipe')
+    recipe_ingredients = db.relationship('RecipeIngredient', 
+                                        cascade="all,delete-orphan",
+                                        backref=db.backref("recipe", cascade="all"))
 
     def __init__(self, name, recipe_ingredients, recipe_categories, description=None, img_path=None):
         self.name = name
@@ -35,23 +37,26 @@ class Recipe(db.Model,DateMixin):
                 self.recipe_ingredients.append(assoc)
             else:
                 "if we have not ingredient with id id_ingredient than"
+                print(assoc.ingredient)
                 raise ValueError
 
     def gen_categories_list(self, recipe_categories):
         self.categories = []
         for id_category in recipe_categories:
             category = RecipeCategory.query.get(id_category)
+            print(id_category)
             if category:
                 self.categories.append(category)
             else:
                 "if we have not category with id id_category than"
+                print(category)
                 raise ValueError
 
 
 class RecipeIngredient(db.Model):
     __tablename__ = 'recipe_ingredient'
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), primary_key=True)
-    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id'), primary_key=True)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='cascade'), primary_key=True)
+    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id', ondelete='cascade'), primary_key=True)
     quantity = db.Column(db.Integer)
     ingredient = db.relationship("Ingredient", backref="recipe_association")
 

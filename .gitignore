@@ -1,5 +1,5 @@
 .env/
-.migrations/
+migrations/
 __pycache__/
 
 # Secret credentials
