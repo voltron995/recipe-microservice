@@ -17,3 +17,6 @@ def create_table(table1, table2, arg=None):
     if arg:
         table.append_column(db.Column(arg, db.Integer))
     return table
+
+class ManyToManyClass:
+    pass
