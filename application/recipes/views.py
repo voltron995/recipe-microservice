@@ -7,49 +7,38 @@ from sqlalchemy.exc import DataError
 from ..app import app, db
 from .models import Recipe, RecipeCategory
 from ..facilities import json_response, json_validate
+from .schemas import *
 
 
-class RecipeById(MethodView):
-    def get(self, rcp_id):
+class RecipeBySlug(MethodView):
+    def get(self, rcp_slug):
         """Returns JSON response with a Recipe entity of the given ID"""
-        r = Recipe.query.get(rcp_id)
-        return json_response(r)
-
-
-class RecipeSchema:
-    post = {
-        "type": "object",
-        "properties": {
-            "name": {"type": "string"},
-            'description': {'type': "string"},
-            "img_path": {"type": "string"},
-            "ingredients": {"type": "object"},
-            "categories": {"type": "array"}
-        },
-        "required": ["name", "ingredients", "categories"],
-    }
-    put = {
-        "type": "object",
-        "properties": {
-            "id": {"type": "number"},
-            "name": {"type": "string"},
-            "description": {"type": "string"},
-            "img_path": {"type": "string"},
-            "ingredients": {"type": "object"},
-            "categories": {"type": "array"}
-        },
-        "required": ["id"],
-    }
-    delete = {
-        "type": "object",
-        "properties": {
-            "id": {"type": "number"}
-        },
-        "required": ["id"]
-    }
+        r = Recipe.query.filter_by(slug=rcp_slug).first()
+        if r:
+            return json_response(r)
+        return json_response(code=404, msg='bad recipe in url')
 
 
 class RecipeView(MethodView):
+    def get(self):
+        recipes = Recipe.query.filter()
+        for arg in request.args:
+            if arg not in Recipe._attrs_list():
+                return json_response(code=403, msg='bad argument in request')
+        if 'id' in request.args:
+            recipes = recipes.filter_by(id=request.args['id'])
+        if 'name' in request.args:
+            recipes = recipes.filter_by(name=request.args['name'])
+        if 'description' in request.args:
+            recipes = recipes.filter_by(description=request.args['description'])
+        if 'categories' in request.args:
+            for category in request.args['categories'].split(','):
+                recipes = recipes.filter(Recipe.categories.any(id=category))
+        if 'ingrefients' in request.args:
+            for ingredient in request.args['ingredients'].split(','):
+                recipes = recipes.filter(Recipe.ingredients.any(id=ingredient))
+        return json_response(recipes.all())
+
     def post(self):
         if json_validate(request.json, RecipeSchema.post):
             recipe_json = request.json
@@ -61,7 +50,7 @@ class RecipeView(MethodView):
             db.session.add(recipe)
             db.session.commit()
             return json_response(recipe)
-        return json.dumps({"error": "403"})
+        return json_response(code=403, msg='validation error')
 
     def put(self):
         if json_validate(request.json, RecipeSchema.put):
@@ -78,8 +67,8 @@ class RecipeView(MethodView):
                 db.session.commit()
                 return json_response(recipe)
             else:
-                return json_response()
-        return json_response()
+                return json_response(code=404, msg='cannot found recipe with id {}'.format(recipe_json["id"]))
+        return json_response(code=403, msg='validation error')
 
     def delete(self):
         if json_validate(request.json, RecipeSchema.delete):
@@ -90,8 +79,52 @@ class RecipeView(MethodView):
                 db.session.commit()
                 return json_response({"OK": 200})
             else:
-                return json_response()
+                return json_response(code=404, msg='cannot found recipe with id {}'.format(recipe_json["id"]))
         else:
-            return json_response()
+            return json_response(code=403, msg='validation error')
 
 
+class CategoryView(MethodView):
+    def get(self):
+        categories = RecipeCategory.query.filter()
+        for arg in request.args:
+            if arg not in RecipeCategory._attrs_list():
+                return json_response(code=403, msg='bad argument in request')
+        if 'id' in request.args:
+            categories = categories.filter_by(id=request.args['id'])
+        if 'name' in request.args:
+            categories = categories.filter_by(name=request.args['name'])
+        return json_response(categories.all())
+
+    def post(self):
+        if json_validate(request.json, CategorySchema.post):
+            category_json = request.json
+            category = RecipeCategory(name=category_json.get("name"))
+            db.session.add(category)
+            db.session.commit()
+            return json_response(category)
+        return json_response(code=403, msg='validation error')
+
+    def put(self):
+        if json_validate(request.json, CategorySchema.put):
+            category_json = request.json
+            category = RecipeCategory.query.get(category_json["id"])
+            if category:
+                category.name = category_json.get("name") or category.name
+                db.session.commit()
+                return json_response(category)
+            else:
+                return json_response(code=404, msg='cannot found recipe with id {}'.format(category_json["id"]))
+        return json_response(code=403, msg='validation error')
+
+    def delete(self):
+        if json_validate(request.json, CategorySchema.delete):
+            category_json = request.json
+            category = RecipeCategory.query.get(category_json["id"])
+            if category:
+                db.session.delete(category)
+                db.session.commit()
+                return json_response({'OK': 200})
+            else:
+                return json_response(code=404, msg='cannot found recipe with id {}'.format(category_json["id"]))
+        return json_response(code=403, msg='validation error')
