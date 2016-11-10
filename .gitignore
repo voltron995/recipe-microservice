@@ -5,3 +5,6 @@ __pycache__/
 # Secret credentials
 locals.py
 uwsgi.ini
+*.pyc
+env
+venv
