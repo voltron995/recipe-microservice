@@ -14,9 +14,11 @@ from ..facilities import json_response, json_validate
 
 class DishById(MethodView):
     def get(self, dish_id):
-        """Returns JSON response with a Recipe entity of the given ID"""
-        r = Dish.query.get(dish_id)
-        return json_response(r)
+        """Returns JSON response with a Dish entity of the given ID"""
+        r = Dish.query.filter_by(id=dish_id).first()
+        if r:
+            return json_response(r)
+        return json_response(code=404, msg='bad recipe in url')
 
 class DishSchema:
     post = {
