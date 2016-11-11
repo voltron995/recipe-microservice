@@ -30,6 +30,9 @@ class Dish(db.Model, DateMixin):
     		else:
     			"if we have not ingredient with id id_ingredient than"
     			raise ValueError
+    @classmethod
+    def _attrs_list(cls):
+        return [item for item in cls.__dict__ if not item.startswith('_')]
 
 class DishIngredient(db.Model,ManyToManyClass):
     __tablename__ = 'dish_ingredient'

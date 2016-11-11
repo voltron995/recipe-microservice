@@ -53,6 +53,22 @@ class DishSchema:
 
 
 class DishView(MethodView):
+    def get(self):
+        dishes = Dish.query.filter()
+        for arg in request.args:
+            if arg not in Dish._attrs_list():
+                return json_response(code=403, msg='bad argument in request')
+        if 'id' in request.args:
+            dishes = dishes.filter_by(id=request.args['id'])
+        if 'name' in request.args:
+            dishes = dishes.filter_by(name=request.args['name'])
+        if 'description' in request.args:
+            dishes = dishes.filter_by(description=request.args['description'])
+        if 'ingrefients' in request.args:
+            for ingredient in request.args['ingredients'].split(','):
+                dishes = dishes.filter(Dish.ingredients.any(id=ingredient))
+        return json_response(dishes.all())
+
     def post(self):
         if json_validate(request.json,DishSchema.post):
             dish_json = request.json
