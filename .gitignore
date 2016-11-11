@@ -8,3 +8,6 @@ uwsgi.ini
 log/uwsgi.log
 venv/*
 *.pyc
+env
+venv
+.idea

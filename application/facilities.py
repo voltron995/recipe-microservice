@@ -1,7 +1,7 @@
 import json
 from collections import OrderedDict
 from datetime import datetime
-from flask import make_response
+from flask import make_response, abort
 from flask_sqlalchemy import Model
 from sqlalchemy.orm.dynamic import Query
 from jsonschema import validate
@@ -49,19 +49,23 @@ def model_serializer(model_obj):
         valid_dict[field] = value
     return valid_dict
 
-def json_response(arg=None):
+def json_response(args=None, code=200, msg=''):
     """
     Returns valid JSON response.
     """
-    if arg is None:
-        arg = {"error":"404"}
-    elif isinstance(arg, Model):
-        arg = model_serializer(arg)
-
+    if args is None:
+        arg = {"error": {'message': msg}}
+    elif isinstance(args, Model):
+        arg = model_serializer(args)
+    elif isinstance(args, list):
+        arg = []
+        for model in args:
+            arg.append(model_serializer(model))
+    else:
+        arg = args
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
-
-    return response
+    return response, code
 
 def json_validate(json, schema):
     try:
