@@ -9,7 +9,7 @@ from sqlalchemy.exc import DataError
 
 from ..app import app, db
 from ..dishes.models import Dish
-from ..facilities import json_response
+from ..facilities import json_response, json_validate
 
 
 class DishById(MethodView):
@@ -25,31 +25,69 @@ class DishSchema:
             "name": {"type": "string"},
             'description': {'type': "string"},
             "img_path": {"type": "string"},
-            "dish_ingredients": {"type": "object"}
+            "ingredients": {"type": "object"}
         },
-        "required": ["name", "dish_ingredients"],
+        "required": ["name", "ingredients"],
     }
+    put = {
+        "type": "object",
+        "properties": {
+            "id": {"type": "number"},
+            "name": {"type": "string"},
+            "description": {"type": "string"},
+            "img_path": {"type": "string"},
+            "ingredients": {"type": "object"},
+
+        },
+        "required": ["id"],
+    }
+    delete = {
+        "type": "object",
+        "properties": {
+            "id": {"type": "number"}
+        },
+        "required": ["id"]
+    }
+
 
 class DishView(MethodView):
     def post(self):
-        if json_validate(request.json, DishSchema.post):
+        if json_validate(request.json,DishSchema.post):
             dish_json = request.json
-            dish = Dish(name=dish_json.get("name"), 
-                dish_ingredients=dish_json.get("dish_ingredients"),
-                description=dish_json.get("description", ""), 
+            dish = Dish(name=dish_json.get("name"),
+                ingredients=dish_json.get("ingredients"),
+                description=dish_json.get("description", ""),
                 img_path=dish_json.get("img_path", ""))
             db.session.add(dish)
             db.session.commit()
-            return json.dumps({"correct": "200"})
+            return json_response(dish)
         return json.dumps({"error": "403"})
 
+    def put(self):
+        if json_validate(request.json, DishSchema.put):
+            dish_json = request.json
+            dish = Dish.query.get(dish_json["id"])
+            if dish:
+                dish.name = dish_json.get("name") or dish.name
+                dish.description = dish_json.get("description") or dish.description
+                dish.img_path = dish_json.get("img_path") or dish.img_path
+                if "ingredients" in dish_json:
+                    dish.gen_ingredients_list(dish_json["ingredients"])
+                db.session.commit()
+                return json_response(dish)
+            else:
+                return json_response()
+        return json_response()
 
-def json_validate(json, schema):
-    print(request)
-    try:
-        validate(json, schema)
-    except ValidationError:
-        return False
-    else:
-        return True
-
+    def delete(self):
+        if json_validate(request.json, DishSchema.delete):
+            dish_json = request.json
+            dish= Dish.query.get(dish_json["id"])
+            if dish:
+                db.session.delete(dish)
+                db.session.commit()
+                return json_response({"OK": 200})
+            else:
+                return json_response()
+        else:
+            return json_response()
