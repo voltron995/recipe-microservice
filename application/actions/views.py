@@ -25,7 +25,7 @@ class ActionList(MethodView):
 
             if 'POST' in rule_dict[endpoint]['method']:
                 rule_dict[endpoint].update(OrderedDict({'post_data':[]}))
-        logger.info('ffdd')
+        
         return json_response(rule_dict)
 
 class ActionName(MethodView):
