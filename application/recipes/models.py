@@ -10,8 +10,7 @@ class Recipe(db.Model,DateMixin):
     img_path = db.Column(db.String(200))
     slug = db.Column(db.String(50), unique=True)
     categories = db.relationship('RecipeCategory',
-                                    secondary=create_table('recipe', 'recipe_category'),
-                                    backref=db.backref('recipes', lazy='dynamic'))
+                                    secondary=create_table('recipe', 'recipe_category'))
     ingredients = db.relationship('RecipeIngredient', 
                                     cascade="all,delete-orphan",
                                     backref=db.backref("recipe", cascade="all"))
@@ -49,6 +48,10 @@ class Recipe(db.Model,DateMixin):
                 "if we have not category with id id_category than"
                 raise ValueError
 
+    @classmethod
+    def _attrs_list(cls):
+        return [item for item in cls.__dict__ if not item.startswith('_')]
+
 
 class RecipeIngredient(db.Model, ManyToManyClass):
     __tablename__ = 'recipe_ingredient'
@@ -64,9 +67,13 @@ class RecipeCategory(db.Model, DateMixin):
     name = db.Column(db.String(50), unique=True)
     slug = db.Column(db.String(50), unique=True)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name):
+        self.name = name
         self.slug = slugify(self.name)
+    
+    @classmethod
+    def _attrs_list(cls):
+        return [item for item in cls.__dict__ if not item.startswith('_')]
 
     def __repr__(self):
         return '<RecipeCategory {}>'.format(self.name)
