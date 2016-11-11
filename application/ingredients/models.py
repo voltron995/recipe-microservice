@@ -6,7 +6,7 @@ class Ingredient(db.Model,DateMixin):
     name = db.Column(db.String(50))
     description = db.Column(db.Text())
     dimension = db.Column(db.Text())
-    in_categories= db.relationship('IngredientCategory',
+    in_categories=db.relationship('IngredientCategory',
                                    secondary=create_table('ingredient', 'ingredient_category'),
                                    backref=db.backref('ingredient', lazy='dynamic'))
 
