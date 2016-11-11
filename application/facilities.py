@@ -30,7 +30,6 @@ def model_serializer(model_obj):
                 if isinstance(obj, ManyToManyClass):
                     attrs = obj.__mapper__.columns.keys()
                     attrs =  [item for item in attrs if not item.endswith('_id')]
-
                     table = getattr(obj, field)
                     table_fields = getattr(obj, field).__mapper__.columns.keys()
                     val_dict = {}

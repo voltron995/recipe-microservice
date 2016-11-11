@@ -25,9 +25,9 @@ class DishSchema:
             "name": {"type": "string"},
             'description': {'type': "string"},
             "img_path": {"type": "string"},
-            "dish_ingredients": {"type": "object"}
+            "ingredients": {"type": "object"}
         },
-        "required": ["name", "dish_ingredients"],
+        "required": ["name", "ingredients"],
     }
 
 class DishView(MethodView):
@@ -35,12 +35,12 @@ class DishView(MethodView):
         if json_validate(request.json, DishSchema.post):
             dish_json = request.json
             dish = Dish(name=dish_json.get("name"), 
-                dish_ingredients=dish_json.get("dish_ingredients"),
+                dish_ingredients=dish_json.get("ingredients"),
                 description=dish_json.get("description", ""), 
                 img_path=dish_json.get("img_path", ""))
             db.session.add(dish)
             db.session.commit()
-            return json.dumps({"correct": "200"})
+            return json_response(dish)
         return json.dumps({"error": "403"})
 
 
