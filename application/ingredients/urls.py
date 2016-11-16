@@ -4,8 +4,8 @@ from .views import *
 
 urls = [
     ('/<int:ingredient_id>/', IngredientById,'ingredient_entity'),
-    ('/', IngredientView, 'ingredient_api'),
-    ('/categories/', CategoryView, 'ingredient_categories_api')
+    ('/', IngredientView, 'ingredient'),
+    ('/categories/', CategoryView, 'ingredient_categories')
 ]
 
 ingredients = Blueprint('ingredients', __name__)
