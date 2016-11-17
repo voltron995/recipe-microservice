@@ -11,7 +11,7 @@ class Recipe(db.Model,DateMixin):
     slug = db.Column(db.String(50), unique=True)
     categories = db.relationship('RecipeCategory',
                                     secondary=create_table('recipe', 'recipe_category'))
-    ingredients = db.relationship('RecipeIngredient', 
+    ingredients = db.relationship('RecipeIngredient',
                                     cascade="all,delete-orphan",
                                     backref=db.backref("recipe", cascade="all"))
 
@@ -21,7 +21,7 @@ class Recipe(db.Model,DateMixin):
         self.img_path = img_path
         self.slug = slugify(self.name)
         self.gen_ingredients_list(ingredients)
-        self.gen_categories_list(categories)        
+        self.gen_categories_list(categories)
 
     def __repr__(self):
         return '<Recipe {}>'.format(self.name)
@@ -70,7 +70,7 @@ class RecipeCategory(db.Model, DateMixin):
     def __init__(self, name):
         self.name = name
         self.slug = slugify(self.name)
-    
+
     @classmethod
     def _attrs_list(cls):
         return [item for item in cls.__dict__ if not item.startswith('_')]

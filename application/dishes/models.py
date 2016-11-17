@@ -1,5 +1,5 @@
 from ..modelextention import *
-from ..ingredient.models import Ingredient
+from ..ingredients.models import Ingredient
 
 
 class Dish(db.Model, DateMixin):
