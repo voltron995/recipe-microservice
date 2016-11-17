@@ -46,6 +46,7 @@ def model_serializer(model_obj):
             value = val
         valid_dict[field] = value
     return valid_dict
+
 def json_response(args=None, code=200, msg=''):
     """
     Returns valid JSON response.
@@ -63,6 +64,7 @@ def json_response(args=None, code=200, msg=''):
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
     return response, code
+    
 def json_validate(json, schema):
     try:
         validate(json, schema)

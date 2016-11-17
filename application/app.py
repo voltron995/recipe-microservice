@@ -3,10 +3,9 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 from flask_alchemydumps import AlchemyDumps, AlchemyDumpsCommand
-from .settings import base
-
-
 import logging
+
+from .settings import base
 
 app = Flask(__name__)
 app.config.from_object(base)

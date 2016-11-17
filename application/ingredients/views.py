@@ -32,12 +32,10 @@ class IngredientView(MethodView):
                                     in_categories=ingredient_data.get("in_categories"))
             db.session.add(ingredient)
             db.session.commit()
-            return json_response(ingredient)
-        
-        return ERROR
+            return json_response(ingredient)        
+        raise Exception('Bad json schema in dish')
 
     def put(self):
-
         if validate_json_schema(request.json, IngredientSchema.put):
             ingredient_data = request.json
             old_ingredient = Ingredient.query.get(ingredient_data["id"])
@@ -50,8 +48,7 @@ class IngredientView(MethodView):
 
             db.session.commit()
             return json_response(old_ingredient)
-
-        return ERROR
+        return Exception('Bad json schema in dish')
 
     def delete(self):
 
@@ -62,8 +59,7 @@ class IngredientView(MethodView):
                 db.session.delete(ingredient_to_delete)
                 db.session.commit()
                 return OK
-
-        return ERROR
+        return Exception('Bad json schema in dish')
 
 class CategoryView(MethodView):
     def get(self):

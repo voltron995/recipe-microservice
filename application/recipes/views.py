@@ -22,12 +22,12 @@ class RecipeBySlug(MethodView):
 #def er_hand(exception):
 #    return json_response(str(exception))
 
-class RecipeView(MethodView,Valid_json):
+class RecipeView(MethodView, Valid_json):
     def get(self):
         recipes = Recipe.query.filter()
         for arg in request.args:
             if arg not in Recipe._attrs_list():
-                return json_response(code=403, msg='bad argument in request')
+                raise Exception('Bad json file')
         if 'id' in request.args:
             recipes = recipes.filter_by(id=request.args['id'])
         if 'name' in request.args:
