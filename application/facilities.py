@@ -6,7 +6,6 @@ from flask_sqlalchemy import Model
 from sqlalchemy.orm.dynamic import Query
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-
 from .modelextention import ManyToManyClass
 
 def model_serializer(model_obj):
@@ -17,7 +16,6 @@ def model_serializer(model_obj):
     fields = model_obj.__mapper__.columns.keys()
     fields.extend(model_obj.__mapper__.relationships.keys())
     valid_dict = OrderedDict()
-
     for field in fields:
         val = getattr(model_obj, field)
         if isinstance(val, datetime):
@@ -37,7 +35,7 @@ def model_serializer(model_obj):
                         val_dict[f] = getattr(table, f)
                     for f in attrs:
                         val_dict[f] = getattr(obj, f)
-                    value.append(val_dict)                
+                    value.append(val_dict)
                 else:
                     table_fields = obj.__mapper__.columns.keys()
                     val_dict = {}
@@ -48,7 +46,6 @@ def model_serializer(model_obj):
             value = val
         valid_dict[field] = value
     return valid_dict
-
 def json_response(args=None, code=200, msg=''):
     """
     Returns valid JSON response.
@@ -66,7 +63,6 @@ def json_response(args=None, code=200, msg=''):
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
     return response, code
-
 def json_validate(json, schema):
     try:
         validate(json, schema)

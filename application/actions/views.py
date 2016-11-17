@@ -17,6 +17,7 @@ class ActionList(MethodView):
 
             if endpoint == 'static' or endpoint.startswith('action_'):
                 continue
+
             if 'GET' in rule.methods:
                 rule_dict[endpoint+'_get'] = OrderedDict([
                     ('path', rule.rule),
