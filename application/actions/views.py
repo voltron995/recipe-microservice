@@ -9,6 +9,7 @@ import logging
 
 class ActionList(MethodView):
     def get(self):
+        responce_dict = OrderedDict()
         rule_dict = OrderedDict()
 
         for rule in app.url_map.iter_rules():
@@ -36,7 +37,8 @@ class ActionList(MethodView):
                     ('path', rule.rule),
                     ('method', 'DELETE')
                     ])
-        return json_response(rule_dict)
+        responce_dict['data'] = rule_dict
+        return json_response(responce_dict)
 
 
 class ActionName(MethodView):
