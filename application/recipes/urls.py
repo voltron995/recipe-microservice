@@ -2,9 +2,9 @@ from flask import Blueprint,request
 from .views import *
 from .schemas import *
 urls = [
-    ('/<string:rcp_slug>/', RecipeBySlug, 'recipe_entity' ),
-    ('/', RecipeView, 'recipe_api'),
-    ('/categories/', CategoryView, 'recipe_categories_api' )
+    ('/<string:rcp_slug>/', RecipeBySlug, 'recipe_entity'),
+    ('/', RecipeView, 'recipe'),
+    ('/categories/', CategoryView, 'recipe_categories')
 ]
 
 recipes = Blueprint('recipes', __name__)

@@ -5,6 +5,8 @@ from ..recipes.models import Recipe, RecipeCategory
 from ..facilities import json_response
 from ..app import logger
 import logging
+
+
 class ActionList(MethodView):
     def get(self):
         rule_dict = OrderedDict()
@@ -15,18 +17,28 @@ class ActionList(MethodView):
             if endpoint == 'static' or endpoint.startswith('action_'):
                 continue
 
-            rule_dict[endpoint] = OrderedDict([
-                ('path', rule.rule),
-                ('method', list(rule.methods - {'OPTIONS', 'HEAD'})),
-            ])
-
-            if rule.arguments:
-                rule_dict[endpoint].update({'url_args': list(rule.arguments)})
-
-            if 'POST' in rule_dict[endpoint]['method']:
-                rule_dict[endpoint].update(OrderedDict({'post_data':[]}))
-        
+            if 'GET' in rule.methods:
+                rule_dict[endpoint+'_get'] = OrderedDict([
+                    ('path', rule.rule),
+                    ('method', 'GET')
+                    ])
+            if 'POST' in rule.methods:
+                rule_dict[endpoint+'_create'] = OrderedDict([
+                    ('path', rule.rule),
+                    ('method', 'POST')
+                    ])
+            if 'PUT' in rule.methods:
+                rule_dict[endpoint+'_update'] = OrderedDict([
+                    ('path', rule.rule),
+                    ('method', 'PUT')
+                    ])
+            if 'DELETE' in rule.methods:
+                rule_dict[endpoint+'_delete'] = OrderedDict([
+                    ('path', rule.rule),
+                    ('method', 'DELETE')
+                    ])
         return json_response(rule_dict)
+
 
 class ActionName(MethodView):
     def get(self, action_name):
