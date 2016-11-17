@@ -1,9 +1,11 @@
 from ..modelextention import *
 from ..ingredients.models import Ingredient
+from .schemas import RecipeSchema, RecipeCategorySchema
 
 
 class Recipe(db.Model,DateMixin):
     __tablename__= 'recipe'
+    __schema = RecipeSchema
     id = db.Column(db.SmallInteger, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     description = db.Column(db.Text())
@@ -15,6 +17,7 @@ class Recipe(db.Model,DateMixin):
                                     cascade="all,delete-orphan",
                                     backref=db.backref("recipe", cascade="all"))
 
+
     def __init__(self, name, ingredients, categories, description=None, img_path=None):
         self.name = name
         self.description = description
@@ -22,6 +25,10 @@ class Recipe(db.Model,DateMixin):
         self.slug = slugify(self.name)
         self.gen_ingredients_list(ingredients)
         self.gen_categories_list(categories)
+
+    @classmethod
+    def get_schema(cls):
+        return cls.__schema
 
     def __repr__(self):
         return '<Recipe {}>'.format(self.name)
@@ -63,6 +70,7 @@ class RecipeIngredient(db.Model, ManyToManyClass):
 
 class RecipeCategory(db.Model, DateMixin):
     __tablename__ = 'recipe_category'
+    __schema = RecipeCategorySchema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     slug = db.Column(db.String(50), unique=True)

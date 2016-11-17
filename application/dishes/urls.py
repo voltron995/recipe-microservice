@@ -3,8 +3,8 @@ from .views import *
 
 
 urls = [
-   ('/<int:dish_id>/', DishById, 'dish_entity'),
-   ('/', DishView, 'dish')]
+   ('/<int:dish_id>', DishById, 'dish_entity'),
+   ('', DishView, 'dish')]
 
 dishes = Blueprint('dishes', __name__)
 for url_str, view_class, endpoint_name in urls:

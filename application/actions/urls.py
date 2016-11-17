@@ -3,8 +3,8 @@ from .views import *
 
 
 urls = [
-    ('/', ActionList, 'action_urls'),
-    ('/<action_name>/', ActionName, 'action_url')
+    ('', ActionList, 'action_urls'),
+    ('/<action_name>', ActionName, 'action_url')
 ]
 
 actions = Blueprint('actions', __name__)

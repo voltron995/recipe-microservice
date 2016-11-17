@@ -29,7 +29,9 @@ def model_serializer(model_obj):
                     attrs = obj.__mapper__.columns.keys()
                     attrs =  [item for item in attrs if not item.endswith('_id')]
                     table = getattr(obj, field)
-                    table_fields = getattr(obj, field).__mapper__.columns.keys()
+                    table_fields = {item for item in getattr(obj, field).__mapper__.columns.keys()}
+                    table_fields -= {'created_timestamp', 'updated_timestamp'}
+                    print(table_fields)
                     val_dict = {}
                     for f in table_fields:
                         val_dict[f] = getattr(table, f)
@@ -37,7 +39,8 @@ def model_serializer(model_obj):
                         val_dict[f] = getattr(obj, f)
                     value.append(val_dict)
                 else:
-                    table_fields = obj.__mapper__.columns.keys()
+                    table_fields = {item for item in obj.__mapper__.columns.keys()}
+                    table_fields -= {'created_timestamp', 'updated_timestamp'}
                     val_dict = {}
                     for f in table_fields:
                         val_dict[f] = getattr(obj, f)
