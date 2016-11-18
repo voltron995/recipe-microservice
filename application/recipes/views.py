@@ -21,68 +21,75 @@ class RecipeBySlug(MethodView):
         raise NotFound('Bad recipe in url')
 
 
-class RecipeView(MethodView):
+class BaseApiView(MethodView):
+    def filter(self, data):
+        model_objects = self._model.query.filter()
+        fields = self._model.__mapper__.columns.keys()
+        fields_relation = self._model.__mapper__.relationships.keys()
+
+        for attr in fields:
+            if attr in data:
+                model_objects = model_objects.filter(getattr(self._model, attr)==data[attr])
+        for attr in fields_relation:
+            if attr in data:
+                for attr_id in data[attr].split(','):
+                    model_objects = model_objects.filter(getattr(self._model, attr).any(id=attr_id))
+        return model_objects.all()
+
+    def create(self, data):
+        model_object = self._model(**data)
+        db.session.add(model_object)
+        db.session.commit()
+        created_object = self._model.query.get(model_object.id)
+        return created_object
+
+    def update(self, data):
+        model_object = self._model.query.get(data['id'])
+        if model_object:
+            fields = self._model.__mapper__.columns.keys()
+            fields_relation = self._model.__mapper__.relationships.keys()
+            for attr in fields:
+                if attr in data:
+                    setattr(model_object, attr, data[attr])
+            for attr in fields_relation: 
+                if attr in data:
+                    setattr(model_object, attr+'_property', data[attr])
+            db.session.commit()
+            return model_object
+        else:
+            raise BadRequest('Can not found {} with id {}'.format(self._model.__tablename__, data["id"])) 
+
+    def remove(self, data):
+        model_object = self._model.query.get(data["id"])
+        if model_object:
+            db.session.delete(model_object)
+            db.session.commit()
+            return 200, 'Successfully deleted {} with id {}'.format(self._model.__tablename__, data["id"])
+        else:
+            raise BadRequest('Can not found {} with id {}'.format(self._model.__tablename__, data["id"]))
+
+
+class RecipeView(BaseApiView):
+    _model = Recipe
+
     def get(self):
-        recipes = self.filter()
-        return json_response(recipes.all())
+        recipes = self.filter(request.args)
+        return json_response(recipes)
 
     def post(self):
-        data = Validator().validate_schema(Recipe.get_schema())["data"]
-        recipe = Recipe(name=data["name"],
-                ingredients=data["ingredients"],
-                categories=data["categories"],
-                description=data["description"],
-                img_path=data["img_path"])
-        db.session.add(recipe)
-        db.session.commit()
-        result = Recipe.query.get(recipe.id)
-        return json_response(result)
+        data = Validator().validate_schema(RecipeSchema_post)
+        recipe = self.create(data)
+        return json_response(recipe)
 
     def put(self):
-        data = Validator().validate_schema(Recipe.get_schema())["data"]
-        recipe = Recipe.query.get(data["id"])
-        if recipe:
-            recipe.name = data["name"] or recipe.name
-            recipe.description = data["description"] or recipe.description
-            recipe.img_path = data["img_path"] or recipe.img_path
-            if "ingredients" in data:
-                recipe.gen_ingredients_list(data["ingredients"])
-            if "categories" in data:
-                recipe.gen_categories_list(data["categories"])
-            db.session.commit()
-            return json_response(recipe)
-        else:
-            raise BadRequest('Can not found recipe with id {}'.format(int(data["id"])))
+        data = Validator().validate_schema(RecipeSchema_put)
+        recipe = self.update(data)
+        return json_response(recipe)
 
     def delete(self):
-        data = Validator().validate_schema(Recipe.get_schema())["data"]
-        recipe = Recipe.query.get(data["id"])
-        if recipe:
-            db.session.delete(recipe)
-            db.session.commit()
-            return json_response({"OK": 200})
-        else:
-            raise BadRequest('Can not found recipe with id {}'.format(int(data["id"])))
-
-    @staticmethod
-    def filter():
-        recipes = Recipe.query.filter()
-        for arg in request.args:
-            if arg not in Recipe._attrs_list():
-                raise BadRequest('wrong argument {arg} in request'.format(arg=arg))
-        if 'id' in request.args:
-            recipes = recipes.filter_by(id=request.args['id'])
-        if 'name' in request.args:
-            recipes = recipes.filter_by(name=request.args['name'])
-        if 'description' in request.args:
-            recipes = recipes.filter_by(description=request.args['description'])
-        if 'categories' in request.args:
-            for category in request.args['categories'].split(','):
-                recipes = recipes.filter(Recipe.categories.any(id=category))
-        if 'ingredients' in request.args:
-            for ingredient in request.args['ingredients'].split(','):
-                recipes = recipes.filter(Recipe.ingredients.any(id=ingredient))
-        return recipes
+        data = Validator().validate_schema(RecipeSchema_delete)
+        code, msg = self.remove(data)
+        return json_response(code=code, msg=msg)
 
 
 class CategoryView(MethodView):

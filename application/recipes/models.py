@@ -1,11 +1,11 @@
 from ..modelextention import *
 from ..ingredients.models import Ingredient
-from .schemas import RecipeSchema, RecipeCategorySchema
+from .schemas import RecipeCategorySchema
+from werkzeug.exceptions import BadRequest
 
 
 class Recipe(db.Model,DateMixin):
     __tablename__= 'recipe'
-    __schema = RecipeSchema
     id = db.Column(db.SmallInteger, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     description = db.Column(db.Text())
@@ -17,14 +17,29 @@ class Recipe(db.Model,DateMixin):
                                     cascade="all,delete-orphan",
                                     backref=db.backref("recipe", cascade="all"))
 
+    @property
+    def ingredients_property(self):
+        return self.ingredients
 
-    def __init__(self, name, ingredients, categories, description=None, img_path=None):
+    @ingredients_property.setter
+    def ingredients_property(self, value):
+        self.gen_ingredients_list(value)
+
+    @property
+    def categories_property(self):
+        return self.categories
+
+    @categories_property.setter
+    def categories_property(self, value):
+        self.gen_categories_list(value)
+
+    def __init__(self, name, ingredients=None, categories=None, description=None, img_path=None):
         self.name = name
         self.description = description
         self.img_path = img_path
         self.slug = slugify(self.name)
-        self.gen_ingredients_list(ingredients)
-        self.gen_categories_list(categories)
+        self.ingredients_property = ingredients
+        self.categories_property = categories
 
     @classmethod
     def get_schema(cls):
@@ -35,25 +50,28 @@ class Recipe(db.Model,DateMixin):
 
     def gen_ingredients_list(self, ingredients):
         """function that create ingredients from json data stored in dish_ingredients"""
-        self.ingredients = []
-        for id_ingredient, quantity in ingredients.items():
-            assoc = RecipeIngredient(quantity=int(quantity))
-            assoc.ingredients = Ingredient.query.get(int(id_ingredient))
-            if assoc.ingredients:
-                self.ingredients.append(assoc)
-            else:
-                "if we have not ingredient with id id_ingredient than"
-                raise ValueError
+        if ingredients:
+            self.ingredients = []
+            
+            for id_ingredient, quantity in ingredients.items():
+                assoc = RecipeIngredient(quantity=int(quantity))
+                assoc.ingredients = Ingredient.query.get(int(id_ingredient))
+                if assoc.ingredients:
+                    self.ingredients.append(assoc)
+                else:
+                    """if we have not ingredient with id id_ingredient than"""
+                    raise BadRequest("Can't find ingredient with id {id}".format(id=id_ingredient))
 
     def gen_categories_list(self, categories):
-        self.categories = []
-        for id_category in categories:
-            category = RecipeCategory.query.get(id_category)
-            if category:
-                self.categories.append(category)
-            else:
-                "if we have not category with id id_category than"
-                raise ValueError
+        if categories:
+            self.categories = []            
+            for id_category in categories:
+                category = RecipeCategory.query.get(id_category)
+                if category:
+                    self.categories.append(category)
+                else:
+                    """if we have not category with id id_category than"""
+                    raise BadRequest("Can't find category with id {id}".format(id=id_category))
 
     @classmethod
     def _attrs_list(cls):

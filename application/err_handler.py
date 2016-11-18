@@ -14,13 +14,20 @@ def handle_error(e):
     code = 500
     name = 'Server Error'
     description = str(e)
-    if isinstance(e, HTTPException):
-        code = e.code
-        name = e.name
-        description = e.description
-    error_details = {"code": code, "name": name, "description": description}
-    return jsonify({'error': error_details})
+    error_details = [{"code": code, "name": name, "description": description}]
+    return jsonify({'errors': error_details}), code
+
+
+def handle_http_error(e):
+    error_details = []
+    if isinstance(e.description, dict):        
+        for key, value in e.description.items():
+            error_details.append({"code": e.code, "name": e.name, "description": key + ": " + value[0]})
+    else:
+        error_details.append({"code": e.code, "name": e.name, "description": e.description})
+    return jsonify({'errors': error_details}), e.code
+
 
 # Register http exceptions to error handler
 for code in http_exceptions:
-    app.register_error_handler(code, handle_error)
+    app.register_error_handler(code, handle_http_error)

@@ -31,7 +31,6 @@ def model_serializer(model_obj):
                     table = getattr(obj, field)
                     table_fields = {item for item in getattr(obj, field).__mapper__.columns.keys()}
                     table_fields -= {'created_timestamp', 'updated_timestamp'}
-                    print(table_fields)
                     val_dict = {}
                     for f in table_fields:
                         val_dict[f] = getattr(table, f)
@@ -48,22 +47,26 @@ def model_serializer(model_obj):
         else:
             value = val
         valid_dict[field] = value
-    return valid_dict
+    json_response = {}
+    json_response["id"] = valid_dict["id"]
+    json_response["type"] = model_obj.__tablename__
+    json_response["attributes"] = {key: value for key, value in valid_dict.items() if key != 'id'}
+    return json_response
 
 def json_response(args=None, code=200, msg=''):
     """
     Returns valid JSON response.
     """
-    if args is None:
-        arg = {"error": {'message': msg}}
-    elif isinstance(args, Model):
-        arg = model_serializer(args)
+    if isinstance(args, Model):
+        arg = {}
+        arg["data"] = model_serializer(args)
     elif isinstance(args, list):
-        arg = []
+        arg = {}
+        arg["data"] = []
         for model in args:
-            arg.append(model_serializer(model))
+            arg["data"].append(model_serializer(model))
     else:
-        arg = args
+        arg = {'message': msg}
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
     return response, code

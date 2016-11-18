@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from werkzeug.exceptions import BadRequest
 
 
 class Validator:
@@ -7,16 +8,15 @@ class Validator:
 
     @staticmethod
     def get_json_or_None():
-        if request.__dict__['environ']['CONTENT_TYPE'] == 'application/json':
-            if request.__dict__['environ']['CONTENT_LENGTH']:
-                return request.json
+        try:
+            return request.json
+        except BadRequest:
+            return None
 
     def validate_schema(self, schema):
         if self._json is None:
-            raise Exception("Can't find json file")
+            raise BadRequest("Can't find json file in request body")
         data, errors = schema().load(self._json)
         if errors:
-            raise Exception(errors)
-        response_json = {}
-        response_json["data"] = data
-        return response_json
+            raise BadRequest(errors)
+        return data
