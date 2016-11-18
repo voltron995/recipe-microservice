@@ -1,10 +1,12 @@
 from flask import Blueprint,request
 from .views import *
+from ..valid_json import Validator
 from .schemas import *
+
 urls = [
-    ('/<string:rcp_slug>', RecipeBySlug, 'recipe_entity'),
-    ('', RecipeView, 'recipe'),
-    ('/categories', CategoryView, 'recipe_categories')
+    ('/<string:rcp_slug>', RecipeBySlug, 'RecipeEntity'),
+    ('', RecipeView, 'Recipe'),
+    ('/categories', CategoryView, 'RecipeCategory')
 ]
 
 recipes = Blueprint('recipes', __name__)

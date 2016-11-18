@@ -1,35 +1,35 @@
 from marshmallow import Schema, fields
 
 
-class RecipeSchema_post(Schema):
+class IngredientSchema_post(Schema):
     name = fields.String(required=True)
     description = fields.String()
     img_path = fields.String()
     categories = fields.List(fields.Int())
-    ingredients = fields.Dict()
+    dimension = fields.String(required=True)
 
 
-class RecipeSchema_put(Schema):
+class IngredientSchema_put(Schema):
     id = fields.Int(required=True)
     name = fields.String()
     description = fields.String()
     img_path = fields.String()
     categories = fields.List(fields.Int())
-    ingredients = fields.Dict()
+    dimention = fields.String()
 
 
-class RecipeSchema_delete(Schema):
+class IngredientSchema_delete(Schema):
     id = fields.Int(required=True)
 
 
-class RecipeCategorySchema_post(Schema):
+class IngredientCategorySchema_post(Schema):
     name = fields.String(required=True)
 
 
-class RecipeCategorySchema_put(Schema):
+class IngredientCategorySchema_put(Schema):
     id = fields.Int(required=True)
     name = fields.String()
 
 
-class RecipeCategorySchema_delete(Schema):
+class IngredientCategorySchema_delete(Schema):
     id = fields.Int(required=True)

@@ -3,8 +3,6 @@ from .app import *
 from werkzeug.exceptions import default_exceptions as http_exceptions
 from werkzeug.exceptions import HTTPException
 
-from .facilities import json_response
-
 
 @app.errorhandler(Exception)
 def handle_error(e):
@@ -17,7 +15,6 @@ def handle_error(e):
     error_details = [{"code": code, "name": name, "description": description}]
     return jsonify({'errors': error_details}), code
 
-
 def handle_http_error(e):
     error_details = []
     if isinstance(e.description, dict):        
@@ -26,7 +23,6 @@ def handle_http_error(e):
     else:
         error_details.append({"code": e.code, "name": e.name, "description": e.description})
     return jsonify({'errors': error_details}), e.code
-
 
 # Register http exceptions to error handler
 for code in http_exceptions:

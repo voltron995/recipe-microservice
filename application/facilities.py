@@ -1,12 +1,15 @@
 import json
 from collections import OrderedDict
 from datetime import datetime
-from flask import make_response, abort
+from flask import make_response, request
+from flask.views import MethodView
 from flask_sqlalchemy import Model
 from sqlalchemy.orm.dynamic import Query
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError
+from werkzeug.exceptions import BadRequest
+
+from .app import db
 from .modelextention import ManyToManyClass
+from .valid_json import Validator
 
 def model_serializer(model_obj):
     """
@@ -78,3 +81,71 @@ def json_validate(json, schema):
         return False
     else:
         return True
+
+
+class BaseApiView(MethodView):
+
+    def get(self):
+        recipes = self.filter(request.args)
+        return json_response(recipes)
+
+    def post(self):
+        data = Validator().validate_schema(self._schema_post)
+        recipe = self.create(data)
+        return json_response(recipe)
+
+    def put(self):
+        data = Validator().validate_schema(self._schema_put)
+        recipe = self.update(data)
+        return json_response(recipe)
+
+    def delete(self):
+        data = Validator().validate_schema(self._schema_delete)
+        code, msg = self.remove(data)
+        return json_response(code=code, msg=msg)
+
+
+    def filter(self, data):
+        model_objects = self._model.query.filter()
+        fields = self._model.__mapper__.columns.keys()
+        fields_relation = self._model.__mapper__.relationships.keys()
+        for attr in fields:
+            if attr in data:
+                model_objects = model_objects.filter(getattr(self._model, attr)==data[attr])
+        for attr in fields_relation:
+            if attr in data:
+                for attr_id in data[attr].split(','):
+                    model_objects = model_objects.filter(getattr(self._model, attr).any(id=attr_id))
+        return model_objects.all()
+
+    def create(self, data):
+        model_object = self._model(**data)
+        db.session.add(model_object)
+        db.session.commit()
+        created_object = self._model.query.get(model_object.id)
+        return created_object
+
+    def update(self, data):
+        model_object = self._model.query.get(data['id'])
+        if model_object:
+            fields = self._model.__mapper__.columns.keys()
+            fields_relation = self._model.__mapper__.relationships.keys()
+            for attr in fields:
+                if attr in data:
+                    setattr(model_object, attr, data[attr])
+            for attr in fields_relation: 
+                if attr in data:
+                    setattr(model_object, attr+'_property', data[attr])
+            db.session.commit()
+            return model_object
+        else:
+            raise BadRequest('Can not found {} with id {}'.format(self._model.__tablename__, data["id"])) 
+
+    def remove(self, data):
+        model_object = self._model.query.get(data["id"])
+        if model_object:
+            db.session.delete(model_object)
+            db.session.commit()
+            return 200, 'Successfully deleted {} with id {}'.format(self._model.__tablename__, data["id"])
+        else:
+            raise BadRequest('Can not found {} with id {}'.format(self._model.__tablename__, data["id"]))

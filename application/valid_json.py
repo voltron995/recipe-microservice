@@ -4,14 +4,7 @@ from werkzeug.exceptions import BadRequest
 
 class Validator:
     def __init__(self):
-        self._json = self.get_json_or_None()
-
-    @staticmethod
-    def get_json_or_None():
-        try:
-            return request.json
-        except BadRequest:
-            return None
+        self._json = request.get_json(silent=True)
 
     def validate_schema(self, schema):
         if self._json is None:

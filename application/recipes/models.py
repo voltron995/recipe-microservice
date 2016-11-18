@@ -1,6 +1,5 @@
 from ..modelextention import *
 from ..ingredients.models import Ingredient
-from .schemas import RecipeCategorySchema
 from werkzeug.exceptions import BadRequest
 
 
@@ -83,12 +82,11 @@ class RecipeIngredient(db.Model, ManyToManyClass):
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='cascade'), primary_key=True)
     ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id', ondelete='cascade'), primary_key=True)
     quantity = db.Column(db.Integer)
-    ingredients = db.relationship("Ingredient", backref="recipe_association")
+    ingredients = db.relationship("Ingredient")
 
 
 class RecipeCategory(db.Model, DateMixin):
     __tablename__ = 'recipe_category'
-    __schema = RecipeCategorySchema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     slug = db.Column(db.String(50), unique=True)
