@@ -4,7 +4,7 @@ from ..valid_json import Validator
 from .schemas import *
 
 urls = [
-    ('/<string:rcp_slug>', RecipeBySlug, 'RecipeEntity'),
+    ('/<string:slug>', RecipeBySlug, 'RecipeEntity'),
     ('', RecipeView, 'Recipe'),
     ('/categories', CategoryView, 'RecipeCategory')
 ]

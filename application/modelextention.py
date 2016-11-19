@@ -4,8 +4,8 @@ from .app import db
 
 
 class DateMixin(object):
-    created_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow())
-    updated_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow(), onupdate=datetime.datetime.utcnow())
+    created_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    updated_timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
 def slugify(s):
     return re.sub('[^\w]+', '-', s).lower()

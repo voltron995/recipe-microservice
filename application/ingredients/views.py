@@ -7,8 +7,8 @@ from .schemas import *
 
 
 class IngredientById(MethodView):    
-    def get(self, ingredient_slug):
-        ingredient = Ingredient.query.filter_by(slug=ingredient_slug)
+    def get(self, slug):
+        ingredient = Ingredient.query.filter_by(slug=slug)
         if ingredient:
             return json_response(ingredient)
         raise NotFound

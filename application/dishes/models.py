@@ -1,5 +1,6 @@
 from ..modelextention import *
 from ..ingredients.models import Ingredient
+from werkzeug.exceptions import BadRequest
 
 
 class Dish(db.Model, DateMixin):
@@ -12,27 +13,39 @@ class Dish(db.Model, DateMixin):
                                     cascade="all,delete-orphan",
                                     backref=db.backref("dish", cascade="all"))
 
+    @property
+    def ingredients_property(self):
+        return self.ingredients
+
+    @ingredients_property.setter
+    def ingredients_property(self, value):
+        self.gen_ingredients_list(value)
+
     def __init__(self, name, ingredients, description=None, img_path=None):
-    	self.name = name
-    	self.description = description
-    	self.img_path = img_path
-    	self.gen_ingredients_list(ingredients)
-    	self.slug = slugify(self.name)
+        self.name = name
+        self.description = description
+        self.img_path = img_path
+        self.ingredients_property = ingredients
+        self.slug = slugify(self.name)
 
     def gen_ingredients_list(self, ingredients):
-    	"""function that create ingredients from json data stored in dish_ingredients"""
-    	self.ingredients = []
-    	for id_ingredient, quantity in ingredients.items():
-    		assoc = DishIngredient(quantity=int(quantity))
-    		assoc.ingredients = Ingredient.query.get(int(id_ingredient))
-    		if assoc.ingredients:
-    			self.ingredients.append(assoc)
-    		else:
-    			"if we have not ingredient with id id_ingredient than"
-    			raise ValueError
+        """function that create ingredients from json data stored in dish_ingredients"""
+        if ingredients:
+            self.ingredients = []
+            
+            for id_ingredient, quantity in ingredients.items():
+                assoc = DishIngredient(quantity=int(quantity))
+                assoc.ingredients = Ingredient.query.get(int(id_ingredient))
+                if assoc.ingredients:
+                    self.ingredients.append(assoc)
+                else:
+                    """if we have not ingredient with id id_ingredient than"""
+                    raise BadRequest("Can't find ingredient with id {id}".format(id=id_ingredient))
+
     @classmethod
     def _attrs_list(cls):
         return [item for item in cls.__dict__ if not item.startswith('_')]
+
 
 class DishIngredient(db.Model,ManyToManyClass):
     __tablename__ = 'dish_ingredient'

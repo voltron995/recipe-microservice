@@ -3,7 +3,7 @@ from .views import *
 
 
 urls = [
-    ('/<string:ingredient_slug>', IngredientById,'IngredientEntity'),
+    ('/<string:slug>', IngredientById,'IngredientEntity'),
     ('', IngredientView, 'Ingredient'),
     ('/categories', CategoryView, 'IngredientCategory')
 ]

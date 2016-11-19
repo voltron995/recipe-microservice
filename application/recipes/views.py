@@ -7,8 +7,8 @@ from .schemas import *
 
 
 class RecipeBySlug(MethodView):
-    def get(self, rcp_slug):
-        recipe = Recipe.query.filter_by(slug=rcp_slug).first()
+    def get(self, slug):
+        recipe = Recipe.query.filter_by(slug=slug).first()
         if recipe: 
             return json_response(recipe)
         raise NotFound
