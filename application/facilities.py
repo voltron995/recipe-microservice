@@ -11,55 +11,39 @@ from .app import db
 from .modelextention import ManyToManyClass
 from .valid_json import Validator
 
-def model_serializer(model_obj):
-    """
-    Returns OrderedDict with attributes of a given SQLAlchemy model instance
-    with suitable datetime values.
-    """
-    fields = model_obj.__mapper__.columns.keys()
-    fields.extend(model_obj.__mapper__.relationships.keys())
-    valid_dict = OrderedDict()
-    for field in fields:
-        val = getattr(model_obj, field)
-        if isinstance(val, datetime):
-            value = val.isoformat()
-        elif isinstance(val, Query):
-            value = [obj.id for obj in val.all()]
-        elif isinstance(val, list):
-            value = []
-            for obj in val:
-                if isinstance(obj, ManyToManyClass):
-                    attrs = obj.__mapper__.columns.keys()
-                    attrs =  [item for item in attrs if not item.endswith('_id')]
-                    table = getattr(obj, field)
-                    table_fields = {item for item in getattr(obj, field).__mapper__.columns.keys()}
-                    table_fields -= {'created_timestamp', 'updated_timestamp'}
-                    val_dict = {}
-                    for f in table_fields:
-                        val_dict[f] = getattr(table, f)
-                    for f in attrs:
-                        val_dict[f] = getattr(obj, f)
-                    value.append(val_dict)
-                else:
-                    table_fields = {item for item in obj.__mapper__.columns.keys()}
-                    table_fields -= {'created_timestamp', 'updated_timestamp'}
-                    val_dict = {}
-                    for f in table_fields:
-                        val_dict[f] = getattr(obj, f)
-                    value.append(val_dict)
-        else:
-            value = val
-        valid_dict[field] = value
-    json_response = {}
-    json_response["id"] = valid_dict["id"]
-    json_response["type"] = model_obj.__tablename__
-    json_response["attributes"] = {key: value for key, value in valid_dict.items() if key != 'id'}
+
+def json_specification(json_data, model):
+    json_response = OrderedDict()
+    json_response["id"] = json_data["id"]
+    json_response["type"] = model.__tablename__
+    json_response["attributes"] = {key: value for key, value in json_data.items() if key != 'id'}
     return json_response
 
+def model_serializer(model):
+    attributes = model.get_attributes()
+    json_dict = OrderedDict()
+    for attr in attributes:
+        json_dict[attr] = attr_to_json(getattr(model, attr))
+    return json_dict
+
+def attr_to_json(attr):
+    if isinstance(attr, datetime):
+            value = attr.isoformat()
+    elif isinstance(attr, list):
+        value = []
+        for obj in attr:
+            obj_dict = OrderedDict()
+            for field in obj.get_attributes():
+                if isinstance(getattr(obj, field), Model):
+                    obj_dict[field] = model_serializer(getattr(obj, field))
+                else:
+                    obj_dict[field] = attr_to_json(getattr(obj, field))
+            value.append(obj_dict)
+    else:
+        value = attr
+    return value
+
 def json_response(args=None, code=200, msg=''):
-    """
-    Returns valid JSON response.
-    """
     if isinstance(args, Model):
         arg = {}
         arg["data"] = model_serializer(args)
@@ -67,37 +51,30 @@ def json_response(args=None, code=200, msg=''):
         arg = {}
         arg["data"] = []
         for model in args:
-            arg["data"].append(model_serializer(model))
+            obj = model_serializer(model)
+            arg["data"].append(json_specification(obj, model))
     else:
         arg = {'message': msg}
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
     return response, code
     
-def json_validate(json, schema):
-    try:
-        validate(json, schema)
-    except ValidationError:
-        return False
-    else:
-        return True
-
 
 class BaseApiView(MethodView):
 
     def get(self):
-        recipes = self.filter(request.args)
-        return json_response(recipes)
+        model_objects = self.filter(request.args)
+        return json_response(model_objects)
 
     def post(self):
         data = Validator().validate_schema(self._schema_post)
-        recipe = self.create(data)
-        return json_response(recipe)
+        model_object = self.create(data)
+        return json_response(model_object)
 
     def put(self):
         data = Validator().validate_schema(self._schema_put)
-        recipe = self.update(data)
-        return json_response(recipe)
+        model_object = self.update(data)
+        return json_response(model_object)
 
     def delete(self):
         data = Validator().validate_schema(self._schema_delete)

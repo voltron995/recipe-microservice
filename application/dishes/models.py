@@ -3,15 +3,14 @@ from ..ingredients.models import Ingredient
 from werkzeug.exceptions import BadRequest
 
 
-class Dish(db.Model, DateMixin):
+class Dish(db.Model, BaseModel):
     __tablename__ = 'dish'
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text())
     img_path = db.Column(db.String(200))
     ingredients = db.relationship('DishIngredient',
                                     cascade="all,delete-orphan",
-                                    backref=db.backref("dish", cascade="all"))
+                                    backref=db.backref('dish_backref', cascade='all'))
 
     @property
     def ingredients_property(self):
@@ -42,14 +41,14 @@ class Dish(db.Model, DateMixin):
                     """if we have not ingredient with id id_ingredient than"""
                     raise BadRequest("Can't find ingredient with id {id}".format(id=id_ingredient))
 
-    @classmethod
-    def _attrs_list(cls):
-        return [item for item in cls.__dict__ if not item.startswith('_')]
-
 
 class DishIngredient(db.Model,ManyToManyClass):
     __tablename__ = 'dish_ingredient'
-    dish_id = db.Column(db.Integer, db.ForeignKey('dish.id',ondelete='cascade'), primary_key=True)
-    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id', ondelete='cascade'), primary_key=True)
+    dish_id = db.Column(db.Integer, 
+                        db.ForeignKey('dish.id', ondelete='cascade'), 
+                        primary_key=True)
+    ingredient_id = db.Column(db.Integer, 
+                        db.ForeignKey('ingredient.id', ondelete='cascade'), 
+                        primary_key=True)
     quantity = db.Column(db.Integer)
-    ingredients = db.relationship("Ingredient") #backref="dish_association")
+    ingredients = db.relationship("Ingredient", backref='dish_ingredient_assocciation_backref')

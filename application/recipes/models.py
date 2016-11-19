@@ -1,20 +1,21 @@
-from ..modelextention import *
-from ..ingredients.models import Ingredient
 from werkzeug.exceptions import BadRequest
 
+from ..modelextention import *
+from ..ingredients.models import Ingredient
 
-class Recipe(db.Model,DateMixin):
+
+class Recipe(db.Model, BaseModel):
     __tablename__= 'recipe'
-    id = db.Column(db.SmallInteger, primary_key=True)
+
     name = db.Column(db.String(50), unique=True)
     description = db.Column(db.Text())
     img_path = db.Column(db.String(200))
-    slug = db.Column(db.String(50), unique=True)
     categories = db.relationship('RecipeCategory',
-                                    secondary=create_table('recipe', 'recipe_category'))
+                                    secondary=create_table('recipe', 'recipe_category'),
+                                    backref='recipe_backref')
     ingredients = db.relationship('RecipeIngredient',
                                     cascade="all,delete-orphan",
-                                    backref=db.backref("recipe", cascade="all"))
+                                    backref=db.backref('recipe_backref', cascade='all'))
 
     @property
     def ingredients_property(self):
@@ -40,18 +41,10 @@ class Recipe(db.Model,DateMixin):
         self.ingredients_property = ingredients
         self.categories_property = categories
 
-    @classmethod
-    def get_schema(cls):
-        return cls.__schema
-
-    def __repr__(self):
-        return '<Recipe {}>'.format(self.name)
-
     def gen_ingredients_list(self, ingredients):
         """function that create ingredients from json data stored in dish_ingredients"""
         if ingredients:
-            self.ingredients = []
-            
+            self.ingredients = []            
             for id_ingredient, quantity in ingredients.items():
                 assoc = RecipeIngredient(quantity=int(quantity))
                 assoc.ingredients = Ingredient.query.get(int(id_ingredient))
@@ -72,20 +65,16 @@ class Recipe(db.Model,DateMixin):
                     """if we have not category with id id_category than"""
                     raise BadRequest("Can't find category with id {id}".format(id=id_category))
 
-    @classmethod
-    def _attrs_list(cls):
-        return [item for item in cls.__dict__ if not item.startswith('_')]
-
 
 class RecipeIngredient(db.Model, ManyToManyClass):
     __tablename__ = 'recipe_ingredient'
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='cascade'), primary_key=True)
     ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id', ondelete='cascade'), primary_key=True)
     quantity = db.Column(db.Integer)
-    ingredients = db.relationship("Ingredient")
+    ingredients = db.relationship("Ingredient", backref='recipe_ingredient_assocciation_backref')
 
 
-class RecipeCategory(db.Model, DateMixin):
+class RecipeCategory(db.Model, BaseModel):
     __tablename__ = 'recipe_category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
@@ -94,10 +83,3 @@ class RecipeCategory(db.Model, DateMixin):
     def __init__(self, name):
         self.name = name
         self.slug = slugify(self.name)
-
-    @classmethod
-    def _attrs_list(cls):
-        return [item for item in cls.__dict__ if not item.startswith('_')]
-
-    def __repr__(self):
-        return '<RecipeCategory {}>'.format(self.name)
