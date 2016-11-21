@@ -38,7 +38,7 @@ class ActionList(MethodView):
                     ('path', rule.rule),
                     ('method', 'DELETE')
                     ])
-        responce_dict['data'] = rule_dict
+        responce_dict['data'] = [{rule: descr} for rule, descr in  rule_dict.items()]
         return json_response(responce_dict)
 
 

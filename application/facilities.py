@@ -54,7 +54,7 @@ def json_response(args=None, code=200, msg=''):
             obj = model_serializer(model)
             arg["data"].append(json_specification(obj, model))
     else:
-        arg = {'message': msg}
+        arg = args
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
     return response, code
