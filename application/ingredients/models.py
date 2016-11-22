@@ -27,9 +27,10 @@ class Ingredient(db.Model, BaseModel):
         self.description = description
         self.categories_property = categories
 
+
     def gen_categories_list(self, categories):
         if categories:
-            self.categories = []            
+            self.categories = []
             for id_category in categories:
                 category = IngredientCategory.query.get(id_category)
                 if category:
@@ -46,5 +47,3 @@ class IngredientCategory(db.Model, BaseModel):
     def __init__(self, name):
         self.name = name
         self.slug = slugify(self.name)
-
-

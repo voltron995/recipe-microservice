@@ -6,9 +6,9 @@ from .models import Ingredient, IngredientCategory
 from .schemas import *
 
 
-class IngredientById(MethodView):    
+class IngredientById(MethodView):
     def get(self, slug):
-        ingredient = Ingredient.query.filter_by(slug=slug)
+        ingredient = Ingredient.query.filter_by(slug=slug).first()
         if ingredient:
             return json_response(ingredient)
         raise NotFound
