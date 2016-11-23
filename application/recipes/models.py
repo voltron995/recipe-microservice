@@ -1,5 +1,7 @@
 from werkzeug.exceptions import BadRequest
 
+from flask.ext.sqlalchemy import event
+
 from ..modelextention import *
 from ..ingredients.models import Ingredient
 
@@ -16,6 +18,7 @@ class Recipe(db.Model, BaseModel):
     ingredients = db.relationship('RecipeIngredient',
                                     cascade="all,delete-orphan",
                                     backref=db.backref('recipe_backref', cascade='all'))
+    price = db.Column(db.Integer(), default=0)
 
     @property
     def ingredients_property(self):
@@ -41,6 +44,19 @@ class Recipe(db.Model, BaseModel):
         self.ingredients_property = ingredients
         self.categories_property = categories
 
+    def gen_price(self):
+        '''
+        function which generate price for recipe
+        '''
+        self.price = 0
+        for assocc in self.ingredients:
+            for product in assocc.ingredient.products:
+                minimun_value = 0
+                for supplier in product.suppliers:
+                    if minimun_value < supplier.price/product.quantity:
+                        minimun_value = supplier.price/product.quantity                    
+                self.price += int(assocc.quantity*minimun_value)
+
     def gen_ingredients_list(self, ingredients):
         """function that create ingredients from json data stored in dish_ingredients"""
         if ingredients:
@@ -53,6 +69,8 @@ class Recipe(db.Model, BaseModel):
                 else:
                     """if we have not ingredient with id id_ingredient than"""
                     raise BadRequest("Can't find ingredient with id {id}".format(id=id_ingredient))
+        self.gen_price()
+
 
     def gen_categories_list(self, categories):
         if categories:
@@ -64,6 +82,10 @@ class Recipe(db.Model, BaseModel):
                 else:
                     """if we have not category with id id_category than"""
                     raise BadRequest("Can't find category with id {id}".format(id=id_category))
+
+    def get_attributes(self):
+        attrs = super(Recipe, self).get_attributes()
+        return attrs
 
 
 class RecipeIngredient(db.Model, ManyToManyClass):
@@ -83,3 +105,14 @@ class RecipeCategory(db.Model, BaseModel):
     def __init__(self, name):
         self.name = name
         self.slug = slugify(self.name)
+
+
+
+@event.listens_for(Recipe.ingredients, 'append')
+@event.listens_for(Recipe.ingredients, 'remove')
+def receive_append_or_remove(target, value, initiator):
+    # Update when a child is added or removed
+    '''
+    event handler, when updated recipe
+    '''
+    target.updated_timestamp = datetime.datetime.utcnow()

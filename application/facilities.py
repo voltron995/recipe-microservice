@@ -34,7 +34,6 @@ def attr_to_json(attr):
         value = []
         for obj in attr:
             obj_dict = attr_to_json(obj)
-            print('obj: ', obj)
             value.append(obj_dict)
     elif isinstance(attr, Model):
         if isinstance(attr, ManyToManyClass):
