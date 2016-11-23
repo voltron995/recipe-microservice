@@ -3,7 +3,7 @@ from .views import *
 
 
 urls = [
-    ('/<string:slug>', SupplierBySlug,'SupplierEntity'),
+    ('/<int:sid>', SupplierById,'SupplierEntity'),
     ('', SupplierView, 'Supplier')
 ]
 

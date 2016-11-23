@@ -1,13 +1,13 @@
 from ..modelextention import *
-from ..ingredients.models import Ingredient
+# from ..ingredients.models import Ingredient
 from ..suppliers.models import Supplier
 
 class Product(db.Model, BaseModel):
     __tablename__= 'product'
     name = db.Column(db.String(100))
     slug = db.Column(db.String(100))
-    ingredient_id = db.Column(db.Integer(),db.ForeignKey("ingredient.id"))
-    ingredient_backref = db.relationship("Ingredient", backref = "products")
+    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id'))
+    # ingredient_backref = db.relationship("Ingredient", backref = "products")
     quantity = db.Column(db.Integer())
     suppliers = db.relationship('ProductSupplier',
                                     cascade="all,delete-orphan",

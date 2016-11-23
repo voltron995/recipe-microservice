@@ -11,6 +11,7 @@ class Ingredient(db.Model, BaseModel):
     categories=db.relationship('IngredientCategory',
                                    secondary=create_table('ingredient', 'ingredient_category'),
                                    backref='ingredient_backref')
+    products = db.relationship("Product", backref="ingredient_backref")
 
     @property
     def categories_property(self):

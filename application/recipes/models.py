@@ -47,8 +47,8 @@ class Recipe(db.Model, BaseModel):
             self.ingredients = []            
             for id_ingredient, quantity in ingredients.items():
                 assoc = RecipeIngredient(quantity=int(quantity))
-                assoc.ingredients = Ingredient.query.get(int(id_ingredient))
-                if assoc.ingredients:
+                assoc.ingredient = Ingredient.query.get(int(id_ingredient))
+                if assoc.ingredient:
                     self.ingredients.append(assoc)
                 else:
                     """if we have not ingredient with id id_ingredient than"""
@@ -71,7 +71,7 @@ class RecipeIngredient(db.Model, ManyToManyClass):
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='cascade'), primary_key=True)
     ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id', ondelete='cascade'), primary_key=True)
     quantity = db.Column(db.Integer)
-    ingredients = db.relationship("Ingredient", backref='recipe_ingredient_assocciation_backref')
+    ingredient = db.relationship("Ingredient", backref='recipe_ingredient_assocciation_backref')
 
 
 class RecipeCategory(db.Model, BaseModel):

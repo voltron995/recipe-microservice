@@ -13,3 +13,4 @@ class Supplier(db.Model, BaseModel):
     def __init__(self, name, contact):
         self.name = name
         self.contact = contact
+        self.slug = slugify(name)

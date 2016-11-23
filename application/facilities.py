@@ -24,7 +24,8 @@ def model_serializer(model):
     json_dict = OrderedDict()
     for attr in attributes:
         json_dict[attr] = attr_to_json(getattr(model, attr))
-    return json_dict
+    return json_specification(json_dict, model)
+    # return json_dict
 
 def attr_to_json(attr):
     if isinstance(attr, datetime):
@@ -32,13 +33,22 @@ def attr_to_json(attr):
     elif isinstance(attr, list):
         value = []
         for obj in attr:
-            obj_dict = OrderedDict()
-            for field in obj.get_attributes():
-                if isinstance(getattr(obj, field), Model):
-                    obj_dict[field] = model_serializer(getattr(obj, field))
-                else:
-                    obj_dict[field] = attr_to_json(getattr(obj, field))
+            obj_dict = attr_to_json(obj)
+            print('obj: ', obj)
             value.append(obj_dict)
+    elif isinstance(attr, Model):
+        if isinstance(attr, ManyToManyClass):
+            obj_dict = OrderedDict()
+            for row in attr.get_attributes():
+                mtm_attr = getattr(attr, row)
+                if isinstance(mtm_attr, Model):
+                    for cell in mtm_attr.get_attributes():
+                        obj_dict[cell] = attr_to_json(getattr(mtm_attr, cell))
+                else:
+                    obj_dict[row] = attr_to_json(getattr(attr, row))                
+            value = json_specification(obj_dict, attr)
+        else:
+            value = model_serializer(attr)
     else:
         value = attr
     return value
@@ -52,55 +62,29 @@ def json_response(args=None, code=200, msg=''):
         arg["data"] = []
         for model in args:
             obj = model_serializer(model)
-            arg["data"].append(json_specification(obj, model))
+            arg["data"].append(obj)
     else:
         arg = args
     response = make_response(json.dumps(arg, indent=4))
     response.headers['Content-type'] = "application/json"
     return response, code
     
+class BaseApiEntityView(MethodView):
+    def get(self, id):
+        obj = self._model.query.filter_by(id=id).first()
+        if obj: 
+            return json_response(obj)
+        raise NotFound
 
-class BaseApiView(MethodView):
-
-    def get(self):
-        model_objects = self.filter(request.args)
-        return json_response(model_objects)
-
-    def post(self):
-        data = Validator().validate_schema(self._schema_post)
-        model_object = self.create(data)
-        return json_response(model_object)
-
-    def put(self):
+    def put(self, id):
         data = Validator().validate_schema(self._schema_put)
         model_object = self.update(data)
         return json_response(model_object)
 
-    def delete(self):
+    def delete(self, id):
         data = Validator().validate_schema(self._schema_delete)
         code, msg = self.remove(data)
         return json_response(code=code, msg=msg)
-
-
-    def filter(self, data):
-        model_objects = self._model.query.filter()
-        fields = self._model.__mapper__.columns.keys()
-        fields_relation = self._model.__mapper__.relationships.keys()
-        for attr in fields:
-            if attr in data:
-                model_objects = model_objects.filter(getattr(self._model, attr)==data[attr])
-        for attr in fields_relation:
-            if attr in data:
-                for attr_id in data[attr].split(','):
-                    model_objects = model_objects.filter(getattr(self._model, attr).any(id=attr_id))
-        return model_objects.all()
-
-    def create(self, data):
-        model_object = self._model(**data)
-        db.session.add(model_object)
-        db.session.commit()
-        created_object = self._model.query.get(model_object.id)
-        return created_object
 
     def update(self, data):
         model_object = self._model.query.get(data['id'])
@@ -126,3 +110,35 @@ class BaseApiView(MethodView):
             return 200, 'Successfully deleted {} with id {}'.format(self._model.__tablename__, data["id"])
         else:
             raise BadRequest('Can not found {} with id {}'.format(self._model.__tablename__, data["id"]))
+
+
+class BaseApiView(MethodView):
+
+    def get(self):
+        model_objects = self.filter(request.args)
+        return json_response(model_objects)
+
+    def post(self):
+        data = Validator().validate_schema(self._schema_post)
+        model_object = self.create(data)
+        return json_response(model_object)
+
+    def filter(self, data):
+        model_objects = self._model.query.filter()
+        fields = self._model.__mapper__.columns.keys()
+        fields_relation = self._model.__mapper__.relationships.keys()
+        for attr in fields:
+            if attr in data:
+                model_objects = model_objects.filter(getattr(self._model, attr)==data[attr])
+        for attr in fields_relation:
+            if attr in data:
+                for attr_id in data[attr].split(','):
+                    model_objects = model_objects.filter(getattr(self._model, attr).any(id=attr_id))
+        return model_objects.all()
+
+    def create(self, data):
+        model_object = self._model(**data)
+        db.session.add(model_object)
+        db.session.commit()
+        created_object = self._model.query.get(model_object.id)
+        return created_object

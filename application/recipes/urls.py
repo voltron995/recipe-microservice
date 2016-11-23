@@ -4,9 +4,10 @@ from ..valid_json import Validator
 from .schemas import *
 
 urls = [
-    ('/<string:slug>', RecipeBySlug, 'RecipeEntity'),
+    ('/<int:id>', RecipeById, 'RecipeEntity'),
     ('', RecipeView, 'Recipe'),
-    ('/categories', CategoryView, 'RecipeCategory')
+    ('/categories', CategoryView, 'RecipeCategory'),
+    ('/categories/<int:id>', CategoryById, 'RecipeCategoryEntity')
 ]
 
 recipes = Blueprint('recipes', __name__)

@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields
+from ..modelextention import * 
 
 
 class SupplierSchema_post(Schema):
