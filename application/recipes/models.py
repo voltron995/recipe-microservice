@@ -1,6 +1,6 @@
 from werkzeug.exceptions import BadRequest
 
-from flask.ext.sqlalchemy import event
+from flask_sqlalchemy import event
 
 from ..modelextention import *
 from ..ingredients.models import Ingredient
@@ -18,7 +18,7 @@ class Recipe(db.Model, BaseModel):
     ingredients = db.relationship('RecipeIngredient',
                                     cascade="all,delete-orphan",
                                     backref=db.backref('recipe_backref', cascade='all'))
-    price = db.Column(db.Integer(), default=0)
+    price = 0
 
     @property
     def ingredients_property(self):
@@ -49,18 +49,21 @@ class Recipe(db.Model, BaseModel):
         function which generate price for recipe
         '''
         self.price = 0
+        price_ingr = []
         for assocc in self.ingredients:
+            minimun_value=[]
             for product in assocc.ingredient.products:
-                minimun_value = 0
                 for supplier in product.suppliers:
-                    if minimun_value < supplier.price/product.quantity:
-                        minimun_value = supplier.price/product.quantity                    
-                self.price += int(assocc.quantity*minimun_value)
+                    minimun_value.append(supplier.price/product.quantity)
+            price_ingr.append(int(assocc.quantity*min(minimun_value)))
+        self.price = sum(price_ingr)
+        self.price = "{:.2f}".format(self.price/100)
+
 
     def gen_ingredients_list(self, ingredients):
         """function that create ingredients from json data stored in dish_ingredients"""
         if ingredients:
-            self.ingredients = []            
+            self.ingredients = []
             for id_ingredient, quantity in ingredients.items():
                 assoc = RecipeIngredient(quantity=int(quantity))
                 assoc.ingredient = Ingredient.query.get(int(id_ingredient))
@@ -69,12 +72,10 @@ class Recipe(db.Model, BaseModel):
                 else:
                     """if we have not ingredient with id id_ingredient than"""
                     raise BadRequest("Can't find ingredient with id {id}".format(id=id_ingredient))
-        self.gen_price()
-
 
     def gen_categories_list(self, categories):
         if categories:
-            self.categories = []            
+            self.categories = []
             for id_category in categories:
                 category = RecipeCategory.query.get(id_category)
                 if category:
@@ -85,6 +86,8 @@ class Recipe(db.Model, BaseModel):
 
     def get_attributes(self):
         attrs = super(Recipe, self).get_attributes()
+        self.gen_price()
+        attrs.extend(['price'])
         return attrs
 
 
