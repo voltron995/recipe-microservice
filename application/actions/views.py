@@ -1,8 +1,7 @@
 from collections import OrderedDict
 from flask.views import MethodView
 from ..app import app
-from ..recipes.models import Recipe, RecipeCategory
-from ..facilities import json_response
+from ..facilities import make_json_response
 from ..app import logger
 import logging
 
@@ -39,7 +38,7 @@ class ActionList(MethodView):
                     ('method', 'DELETE')
                     ])
         responce_dict['data'] = [{rule: descr} for rule, descr in  rule_dict.items()]
-        return json_response(responce_dict)
+        return make_json_response(responce_dict)
 
 
 class ActionName(MethodView):
@@ -62,5 +61,4 @@ class ActionName(MethodView):
                     rule_dict[endpoint].update({'url_args': list(rule.arguments)})
 
                 break
-
-        return json_response(rule_dict)
+        return make_json_response(rule_dict)

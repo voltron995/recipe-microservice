@@ -1,35 +1,21 @@
 from marshmallow import Schema, fields
 
-
-class RecipeSchema_post(Schema):
-    name = fields.String(required=True)
-    description = fields.String()
-    img_path = fields.String()
-    categories = fields.List(fields.Int())
-    ingredients = fields.Dict()
+from ..ingredients.schemas import IngredientListSchema
 
 
-class RecipeSchema_put(Schema):
-    id = fields.Int(required=True)
-    name = fields.String()
-    description = fields.String()
-    img_path = fields.String()
-    categories = fields.List(fields.Int())
-    ingredients = fields.Dict()
-
-
-class RecipeSchema_delete(Schema):
-    id = fields.Int(required=True)
-
-
-class RecipeCategorySchema_post(Schema):
-    name = fields.String(required=True)
-
-
-class RecipeCategorySchema_put(Schema):
-    id = fields.Int(required=True)
+class CategorySchema(Schema):
+    id = fields.Int()
     name = fields.String()
 
 
-class RecipeCategorySchema_delete(Schema):
-    id = fields.Int(required=True)
+class RecipeSchema(Schema):
+    id = fields.Int()
+    name = fields.String()
+    description = fields.String()
+    img_path = fields.String()
+    categories = fields.Nested(CategorySchema, many=True)
+    ingredients = fields.Nested(
+    	IngredientListSchema, 
+    	attribute='ingredients_list',
+    	many=True)
+    price = fields.String(dump_only=True, attribute='price')

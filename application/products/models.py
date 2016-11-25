@@ -1,5 +1,4 @@
-from ..modelextention import *
-# from ..ingredients.models import Ingredient
+from ..modelextention import ManyToManyClass, BaseModel, db
 from ..suppliers.models import Supplier
 
 class Product(db.Model, BaseModel):
@@ -13,29 +12,28 @@ class Product(db.Model, BaseModel):
                                     cascade="all,delete-orphan",
                                     backref=db.backref('product_backref', cascade='all'))
 
-
-    def __init__(self, name, quantity, suppliers, ingredient_id):
+    def __init__(self, name, quantity, suppliers_list, ingredient_id):
         self.name = name
-        self.slug = slugify(name)
         self.quantity = quantity
         self.ingredient_id = ingredient_id
-        self.supplier_property = suppliers
-
+        self.suppliers_list = suppliers_list
 
     @property
-    def supplier_property(self):
+    def suppliers_list(self):
         return self.suppliers
 
-    @supplier_property.setter
-    def supplier_property(self, value):
-        self.gen_price_list(value)
+    @suppliers_list.setter
+    def suppliers_list(self, value):
+        self.gen_suppliers_list(value)
 
-    def gen_price_list(self, suppliers):
+    def gen_suppliers_list(self, suppliers_list):
         """function that create ingredients from json data stored in dish_ingredients"""
-        if suppliers:
+        if suppliers_list:
             self.suppliers = []
-            for id_supplier, price in suppliers.items():
-                assoc = ProductSupplier(price=int(price))
+            for supplier in suppliers_list:
+                id_supplier = supplier['supplier']['id']
+                price = supplier['price']
+                assoc = ProductSupplier(price=price)
                 assoc.supplier = Supplier.query.get(int(id_supplier))
                 if assoc.supplier:
                     self.suppliers.append(assoc)
@@ -47,6 +45,13 @@ class Product(db.Model, BaseModel):
 class ProductSupplier(db.Model, ManyToManyClass):
     __tablename__ = 'product_suplier'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete='cascade'), primary_key=True)
-    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id', ondelete='cascade'), primary_key=True)
+    supplier_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('supplier.id', ondelete='cascade'), 
+        primary_key=True
+    )
     price = db.Column(db.Integer)
-    supplier = db.relationship("Supplier", backref='product_suplier_backref')
+    supplier = db.relationship(
+        "Supplier", 
+        backref='product_suplier_backref'
+    )

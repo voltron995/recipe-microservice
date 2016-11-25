@@ -3,8 +3,8 @@ from .views import *
 
 
 urls = [
-    ('/<int:sid>', SupplierById,'SupplierEntity'),
-    ('', SupplierView, 'Supplier')
+    ('/<int:id>', SupplierEntity,'SupplierEntity'),
+    ('', SupplierList, 'SupplierList')
 ]
 
 suppliers = Blueprint('suppliers', __name__)

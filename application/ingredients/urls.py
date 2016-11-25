@@ -3,10 +3,10 @@ from .views import *
 
 
 urls = [
-    ('/<int:id>', IngredientById, 'IngredientEntity'),
-    ('', IngredientView, 'Ingredient'),
-    ('/categories', CategoryView, 'IngredientCategory'),
-    ('/categories/<int:id>', CategoryById, 'IngredientCategoryEntity')
+    ('/<int:id>', IngredientEntity, 'IngredientEntity'),
+    ('', IngredientList, 'IngredientList'),
+    ('/categories', CategoryList, 'IngredientCategory'),
+    ('/categories/<int:id>', CategoryEntity, 'IngredientCategoryEntity')
 ]
 
 ingredients = Blueprint('ingredients', __name__)

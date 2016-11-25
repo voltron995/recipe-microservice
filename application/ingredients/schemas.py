@@ -1,35 +1,23 @@
 from marshmallow import Schema, fields
 
-
-class IngredientSchema_post(Schema):
-    name = fields.String(required=True)
-    description = fields.String()
-    img_path = fields.String()
-    categories = fields.List(fields.Int())
-    dimension = fields.String(required=True)
+from ..products.schemas import ProductSchema
 
 
-class IngredientSchema_put(Schema):
-    id = fields.Int(required=True)
-    name = fields.String()
-    description = fields.String()
-    img_path = fields.String()
-    categories = fields.List(fields.Int())
-    dimention = fields.String()
-
-
-class IngredientSchema_delete(Schema):
-    id = fields.Int(required=True)
-
-
-class IngredientCategorySchema_post(Schema):
-    name = fields.String(required=True)
-
-
-class IngredientCategorySchema_put(Schema):
-    id = fields.Int(required=True)
+class CategorySchema(Schema):
+    id = fields.Int()
     name = fields.String()
 
 
-class IngredientCategorySchema_delete(Schema):
-    id = fields.Int(required=True)
+class IngredientSchema(Schema):
+    id = fields.Int()
+    name = fields.String()
+    description = fields.String()
+    img_path = fields.String()
+    categories = fields.Nested(CategorySchema, many=True)
+    products = fields.Nested(ProductSchema, many=True)
+    dimension = fields.String()
+
+
+class IngredientListSchema(Schema):
+    quantity = fields.Int()
+    ingredient = fields.Nested(IngredientSchema)

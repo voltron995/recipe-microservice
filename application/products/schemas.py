@@ -1,20 +1,20 @@
 from marshmallow import Schema, fields
 
-
-class ProductSchema_post(Schema):
-    name = fields.String(required=True)
-    quantity = fields.Int(required=True)
-    ingredient_id = fields.Int(required=True)
-    suppliers = fields.Dict(required=True)
+from ..suppliers.schemas import SupplierSchema
 
 
-class ProductSchema_put(Schema):
-    id = fields.Int(required=True)
+class ProductSupplierSchema(Schema):
+    price = fields.Int()
+    supplier = fields.Nested(SupplierSchema)
+
+
+class ProductSchema(Schema):
+    id = fields.Int()
     name = fields.String()
     quantity = fields.Int()
     ingredient_id = fields.Int()
-    suppliers = fields.Dict()
-
-
-class ProductSchema_delete(Schema):
-    id = fields.Int(required=True)
+    suppliers = fields.Nested(
+        ProductSupplierSchema, 
+        attribute='suppliers_list', 
+        many=True
+    )

@@ -1,17 +1,13 @@
-from flask.views import MethodView
-from werkzeug.exceptions import NotFound
-
-from ..facilities import json_response, BaseApiView, BaseApiEntityView
+from ..facilities import ListCreate, RetrieveUpdateDelete
 from .models import Supplier
 from .schemas import *
 
 
-class SupplierById(BaseApiEntityView):
+class SupplierEntity(RetrieveUpdateDelete):
     _model = Supplier
-    _schema_put = SupplierSchema_put
-    _schema_delete = SupplierSchema_delete
+    _schema = SupplierSchema
 
 
-class SupplierView(BaseApiView):
+class SupplierList(ListCreate):
     _model = Supplier
-    _schema_post = SupplierSchema_post
+    _schema = SupplierSchema

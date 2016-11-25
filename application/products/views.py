@@ -1,17 +1,17 @@
 from flask.views import MethodView
 from werkzeug.exceptions import NotFound
 
-from ..facilities import json_response, BaseApiView, BaseApiEntityView
+from ..facilities import ListCreate, RetrieveUpdateDelete
+
 from .models import Product
-from .schemas import *
+from .schemas import ProductSchema
 
 
-class ProductBySlug(BaseApiEntityView):
+class ProductEntity(RetrieveUpdateDelete):
     _model = Product
-    _schema_put = ProductSchema_put
-    _schema_delete = ProductSchema_delete
+    _schema = ProductSchema
 
 
-class ProductView(BaseApiView):
+class ProductList(ListCreate):
     _model = Product
-    _schema_post = ProductSchema_post
+    _schema = ProductSchema

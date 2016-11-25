@@ -1,30 +1,23 @@
-from flask.views import MethodView
-from werkzeug.exceptions import NotFound
-
-from ..facilities import json_response, BaseApiView, BaseApiEntityView
-from ..valid_json import Validator
+from ..facilities import ListCreate, RetrieveUpdateDelete
 from .models import Recipe, RecipeCategory
-from .schemas import *
-from ..app import db
+from .schemas import RecipeSchema, CategorySchema
 
 
-class RecipeById(BaseApiEntityView):
+class RecipeList(ListCreate):
     _model = Recipe
-    _schema_put = RecipeSchema_put
-    _schema_delete = RecipeSchema_delete
+    _schema = RecipeSchema
 
 
-class RecipeView(BaseApiView):
+class RecipeEntity(RetrieveUpdateDelete):
     _model = Recipe
-    _schema_post = RecipeSchema_post
+    _schema = RecipeSchema
 
 
-class CategoryById(BaseApiEntityView):
+class CategoryList(ListCreate):
     _model = RecipeCategory
-    _schema_put = RecipeCategorySchema_put
-    _schema_delete = RecipeCategorySchema_delete
-    
+    _schema = CategorySchema
 
-class CategoryView(BaseApiView):
+
+class CategoryEntity(RetrieveUpdateDelete):
     _model = RecipeCategory
-    _schema_post = RecipeCategorySchema_post
+    _schema = CategorySchema

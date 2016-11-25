@@ -1,28 +1,23 @@
-from flask.views import MethodView
-from werkzeug.exceptions import NotFound
-
-from ..facilities import json_response, BaseApiView, BaseApiEntityView
-from .models import Ingredient, IngredientCategory
+from ..facilities import ListCreate, RetrieveUpdateDelete
+from .models import Ingredient, Category
 from .schemas import *
 
 
-class IngredientById(BaseApiEntityView):
+class IngredientEntity(RetrieveUpdateDelete):
     _model = Ingredient
-    _schema_put = IngredientSchema_put
-    _schema_delete = IngredientSchema_delete
+    _schema = IngredientSchema
 
 
-class IngredientView(BaseApiView):
+class IngredientList(ListCreate):
     _model = Ingredient
-    _schema_post = IngredientSchema_post
+    _schema = IngredientSchema
 
 
-class CategoryById(BaseApiEntityView):
-    _model = IngredientCategory
-    _schema_put = IngredientCategorySchema_put
-    _schema_delete = IngredientCategorySchema_delete
+class CategoryEntity(RetrieveUpdateDelete):
+    _model = Category
+    _schema = CategorySchema
 
 
-class CategoryView(BaseApiView):
-    _model = IngredientCategory
-    _schema_post = IngredientCategorySchema_post
+class CategoryList(ListCreate):
+    _model = Category
+    _schema = CategorySchema

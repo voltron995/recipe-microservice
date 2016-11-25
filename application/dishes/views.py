@@ -1,17 +1,13 @@
-from flask.views import MethodView
-from werkzeug.exceptions import NotFound
-
-from ..facilities import json_response, BaseApiView, BaseApiEntityView
+from ..facilities import ListCreate, RetrieveUpdateDelete
 from .models import Dish
-from .schemas import *
+from .schemas import DishSchema
 
 
-class DishById(BaseApiEntityView):
+class DishEntity(RetrieveUpdateDelete):
     _model = Dish
-    _schema_put = DishSchema_put
-    _schema_delete = DishSchema_delete
+    _schema = DishSchema
 
 
-class DishView(BaseApiView):
+class DishList(ListCreate):
     _model = Dish
-    _schema_post = DishSchema_post
+    _schema = DishSchema

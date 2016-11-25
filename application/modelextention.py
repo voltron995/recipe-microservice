@@ -34,18 +34,10 @@ class DateMixin():
 
 
 class BaseModel(DateMixin):
-    id = db.Column(db.SmallInteger, primary_key=True)
-    slug = db.Column(db.String(50), unique=True)
+    id = db.Column(db.Integer, primary_key=True)
 
     def __repr__(self):
-        return '<{}: {}>'.format(self.__class__.__name__, self.name)
-
-    @classmethod
-    def get_attributes(cls):
-        attrs = cls.__mapper__.columns.keys()
-        attrs.extend(cls.__mapper__.relationships.keys())
-        attributes = [attr for attr in attrs 
-                    if not attr.endswith('_backref') and
-                    not attr.endswith('_timestamp')]
-        return attributes
-
+        return '<{}: {}>'.format(
+            self.__class__.__name__, 
+            self.name
+        )
