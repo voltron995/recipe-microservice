@@ -12,7 +12,7 @@ class Ingredient(db.Model, BaseModel):
                                    secondary=create_table('ingredient', 'ingredient_category'),
                                    backref='ingredient_backref')
     products = db.relationship("Product", backref="ingredient_backref")
-    # add image path
+    img_path = db.Column(db.String(50))
 
     @property
     def categories_property(self):
