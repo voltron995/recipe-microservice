@@ -8,8 +8,7 @@ import logging
 
 class ActionList(MethodView):
     def get(self):
-        responce_dict = OrderedDict()
-        rule_dict = OrderedDict()
+        response_dict = OrderedDict()
 
         for rule in app.url_map.iter_rules():
             endpoint = rule.endpoint.rsplit('.', 1)[-1]
@@ -18,27 +17,26 @@ class ActionList(MethodView):
                 continue
 
             if 'GET' in rule.methods:
-                rule_dict[endpoint+'_get'] = OrderedDict([
+                response_dict[endpoint+'_get'] = OrderedDict([
                     ('path', rule.rule),
                     ('method', 'GET')
                     ])
             if 'POST' in rule.methods:
-                rule_dict[endpoint+'_create'] = OrderedDict([
+                response_dict[endpoint+'_create'] = OrderedDict([
                     ('path', rule.rule),
                     ('method', 'POST')
                     ])
             if 'PUT' in rule.methods:
-                rule_dict[endpoint+'_update'] = OrderedDict([
+                response_dict[endpoint+'_update'] = OrderedDict([
                     ('path', rule.rule),
                     ('method', 'PUT')
                     ])
             if 'DELETE' in rule.methods:
-                rule_dict[endpoint+'_delete'] = OrderedDict([
+                response_dict[endpoint+'_delete'] = OrderedDict([
                     ('path', rule.rule),
                     ('method', 'DELETE')
                     ])
-        responce_dict['data'] = [{rule: descr} for rule, descr in  rule_dict.items()]
-        return make_json_response(responce_dict)
+        return make_json_response(response_dict)
 
 
 class ActionName(MethodView):
