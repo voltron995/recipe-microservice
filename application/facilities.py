@@ -45,7 +45,6 @@ class ListCreate(MethodView, ValidationMaxin):
         )
         if errors:
             return make_json_response(errors, 400)
-        print(data)
         new_object = self._model(**data)
         db.session.add(new_object)
         db.session.commit()
