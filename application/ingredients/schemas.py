@@ -1,4 +1,5 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load, validate
+from marshmallow.exceptions import ValidationError
 
 from ..products.schemas import ProductSchema
 
@@ -19,5 +20,13 @@ class IngredientSchema(Schema):
 
 
 class IngredientListSchema(Schema):
-    quantity = fields.Int()
-    ingredient = fields.Nested(IngredientSchema)
+    quantity = fields.Int(required=True)
+    ingredient = fields.Nested(IngredientSchema,
+        required=True
+    )
+
+    @post_load
+    def check_id(self, data):
+        if 'id' not in data['ingredient']:
+            raise ValidationError('Ingredient must have a "id" key.')
+        return data
