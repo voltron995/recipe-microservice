@@ -4,9 +4,7 @@ from ..suppliers.models import Supplier
 class Product(db.Model, BaseModel):
     __tablename__= 'product'
     name = db.Column(db.String(100))
-    slug = db.Column(db.String(100))
     ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id'))
-    # ingredient_backref = db.relationship("Ingredient", backref = "products")
     quantity = db.Column(db.Integer())
     suppliers = db.relationship('ProductSupplier',
                                     cascade="all,delete-orphan",
@@ -46,12 +44,12 @@ class ProductSupplier(db.Model, ManyToManyClass):
     __tablename__ = 'product_suplier'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete='cascade'), primary_key=True)
     supplier_id = db.Column(
-        db.Integer, 
-        db.ForeignKey('supplier.id', ondelete='cascade'), 
+        db.Integer,
+        db.ForeignKey('supplier.id', ondelete='cascade'),
         primary_key=True
     )
     price = db.Column(db.Integer)
     supplier = db.relationship(
-        "Supplier", 
+        "Supplier",
         backref='product_suplier_backref'
     )

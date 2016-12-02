@@ -7,9 +7,11 @@ from ..ingredients.models import RecipeIngredient
 from .schemas import RecipeSchema, CategorySchema
 
 
+
 class RecipeList(ListCreate):
     _model = Recipe
     _schema = RecipeSchema
+
 
     def get_objects_list(self):
         data = request.args
@@ -31,16 +33,13 @@ class RecipeList(ListCreate):
             recipes = recipes.filter(Recipe.ingredients.any(ingredient_id=ingredient))
         return recipes
 
-
 class RecipeEntity(RetrieveUpdateDelete):
     _model = Recipe
     _schema = RecipeSchema
 
-
 class CategoryList(ListCreate):
     _model = RecipeCategory
     _schema = CategorySchema
-
 
 class CategoryEntity(RetrieveUpdateDelete):
     _model = RecipeCategory

@@ -20,10 +20,3 @@ class RecipeSchema(Schema):
     	many=True,
         required=True)
     price = fields.String(dump_only=True, attribute='price')
-
-    @pre_load
-    def check_name(self, data):
-        recipe = Recipe.query.filter_by(name=data['name']).first()
-        if recipe:
-            raise ValidationError('Name: Duplicated value')
-        return data

@@ -14,7 +14,7 @@ LOGGING = {
         'disable_existing_loggers': False,
         'formatters': {
              'simple': {
-                  'format': '%(levelname)s: %(message)s'
+                  'format': "%(asctime)s %(name)-15s %(levelname)-8s %(message)s"
         },
         },
         'handlers': {
@@ -22,9 +22,7 @@ LOGGING = {
                   'class' : 'logging.handlers.RotatingFileHandler',
                   'formatter': 'simple',
                   'filename': basedir+'/log/logconfig.log',
-                  'level': 'INFO',
-                  'maxBytes': 1024,
-                  'backupCount': 3
+                  'level': 'INFO'
                   },
 
             'console': {
