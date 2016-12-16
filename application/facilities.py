@@ -13,7 +13,7 @@ from .recipes.models import Recipe
 from .app import db, logger
 from .modelextention import ManyToManyClass
 from .valid_json import Validator
-
+from .err_handler import handle_error
 
 def make_json_response(attrs=None, code=200):
     response = make_response(json.dumps(attrs, indent=4))
@@ -50,10 +50,10 @@ class ListCreate(MethodView, ValidationMaxin):
         )
         if errors:
             return make_json_response(errors, 400)
-        valid_name = self._model.query.filter_by(name=data['name']).first
-        if valid_name:
-            raise ValidationError('Name: Duplicated value')
-        return data
+        if self._model == Recipe:
+            valid_name = self._model.query.filter_by(name=data['name']).first()
+            if valid_name:
+                return handle_error("Name: Duplicated value")
         new_object = self._model(**data)
         db.session.add(new_object)
         db.session.commit()
