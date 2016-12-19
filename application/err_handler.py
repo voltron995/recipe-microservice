@@ -12,7 +12,7 @@ def handle_error(e):
     code = 500
     name = 'Server Error'
     description = str(e)
-    error_details = [{"code": code, "name": name, "description": description}]
+    error_details = [{"code": code, "title": name, "detail": description}]
     logger.error(error_details)
     return jsonify({'errors': error_details}), code
 
@@ -20,9 +20,9 @@ def handle_http_error(e):
     error_details = []
     if isinstance(e.description, dict):
         for key, value in e.description.items():
-            error_details.append({"code": e.code, "name": e.name, "description": key + ": " + value[0]})
+            error_details.append({"code": e.code, "title": e.name, "detail": key + ": " + value[0]})
     else:
-        error_details.append({"code": e.code, "name": e.name, "description": e.description})
+        error_details.append({"code": e.code, "title": e.name, "detail": e.description})
     logger.error(error_details)
     return jsonify({'errors': error_details}), e.code
 
