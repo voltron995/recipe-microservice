@@ -11,7 +11,7 @@ class Recipe(db.Model, BaseModel):
 
     name = db.Column(db.String(50), unique=True)
     description = db.Column(db.Text())
-    img_path = db.Column(db.String(200))
+    image = db.Column(db.String(200))
     categories = db.relationship(
         'RecipeCategory',
         secondary=create_table('recipe', 'recipe_category'),
@@ -43,10 +43,10 @@ class Recipe(db.Model, BaseModel):
     def categories_list(self, value):
         self.gen_categories_list(value)
 
-    def __init__(self, name, ingredients_list, categories=None, description=None, img_path=None):
+    def __init__(self, name, ingredients_list, categories=None, description=None, image=None):
         self.name = name
         self.description = description
-        self.img_path = img_path
+        self.image = image
         self.ingredients_list = ingredients_list
         self.categories_list = categories
 
@@ -104,8 +104,6 @@ class RecipeCategory(db.Model, BaseModel):
     __tablename__ = 'recipe_category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
-    slug = db.Column(db.String(50), unique=True)
 
     def __init__(self, name):
         self.name = name
-        self.slug = slugify(self.name)

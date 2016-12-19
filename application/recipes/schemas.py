@@ -12,7 +12,7 @@ class RecipeSchema(Schema):
     id = fields.Int()
     name = fields.String(required=True)
     description = fields.String()
-    img_path = fields.String()
+    image = fields.String()
     categories = fields.Nested(CategorySchema, many=True)
     ingredients = fields.Nested(
     	IngredientListSchema,

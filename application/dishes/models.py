@@ -11,7 +11,7 @@ class Dish(db.Model, BaseModel):
 
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text())
-    img_path = db.Column(db.String(200))
+    image = db.Column(db.String(200))
     ingredients = db.relationship(
         'DishIngredient',
         cascade="all,delete-orphan",
@@ -30,10 +30,10 @@ class Dish(db.Model, BaseModel):
     def ingredients_list(self, value):
         self.gen_ingredients_list(value)
 
-    def __init__(self, name, ingredients_list, description=None, img_path=None):
+    def __init__(self, name, ingredients_list, description=None, image=None):
         self.name = name
         self.description = description
-        self.img_path = img_path
+        self.image = image
         self.ingredients_list = ingredients_list
 
     def gen_price(self):
@@ -54,7 +54,7 @@ class Dish(db.Model, BaseModel):
 
     def gen_ingredients_list(self, ingredients):
         """
-        function that create ingredients from 
+        function that create ingredients from
         json data stored in dish_ingredients
         """
         if ingredients:

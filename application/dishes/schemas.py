@@ -7,7 +7,7 @@ class DishSchema(Schema):
     id = fields.Int()
     name = fields.String(required=True)
     description = fields.String()
-    img_path = fields.String()
+    image = fields.String()
     ingredients = fields.Nested(
         IngredientListSchema,
         attribute='ingredients_list',

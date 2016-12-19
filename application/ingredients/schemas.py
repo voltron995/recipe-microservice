@@ -13,7 +13,7 @@ class IngredientSchema(Schema):
     id = fields.Int()
     name = fields.String()
     description = fields.String()
-    img_path = fields.String()
+    image = fields.String()
     categories = fields.Nested(CategorySchema, many=True)
     products = fields.Nested(ProductSchema, many=True)
     dimension = fields.String()
